@@ -1,0 +1,22 @@
+.center
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.user-information-container
+{
+  padding:10px;
+}
+.content
+{
+  min-height: 15vh;
+  td
+  {
+    padding: 5px;
+  }
+  th
+  {
+    padding: 5px;
+  }
+}
