@@ -23,6 +23,24 @@ interface WebStoreInterface
     type?:string;
 }
 
+interface LoginInterface
+{
+    accessToken?:string;
+    tokenType?:string;
+}
+
+interface OrderInterface
+{
+    id?:number;
+    typeId?:number;
+}
+
+interface GetOrderInterface
+{
+    orderType?:string;
+    contactId?:number;
+}
+
 @Component({
     selector: 'stats-view',
     template: require('./stats-view.component.html'),
@@ -33,6 +51,9 @@ export class StatsViewComponent implements OnInit
     public plugins:Array<PluginInterface>;
     public user:UserInterface;
     public webStores:Array<WebStoreInterface>;
+    public order:OrderInterface;
+    public getorder:GetOrderInterface;
+    public login:LoginInterface;
 
     private _alert:TerraAlertComponent;
 
@@ -51,6 +72,7 @@ export class StatsViewComponent implements OnInit
         this.createPluginData();
         this.createUserData();
         this.createWebStoreData();
+        this.loginData();
         this._alert.addAlert(
             {
                 msg:'Fetching data',
@@ -58,6 +80,34 @@ export class StatsViewComponent implements OnInit
                 dismissOnTimeout:3000,
                 identifier: 'info'
             });
+    }
+
+    public orderItem():void
+    {
+        this.order = {};
+        this._statsDataService.postCreateOrder('/rest/orders').subscribe((response:any) =>
+        {
+            console.log(response);
+            this.order =
+                {
+                    id: response.id,
+                    typeId: response.typeId
+                };
+        });
+    }
+
+    public getorderItem():void
+    {
+        this.getorder = {};
+        this._statsDataService.getRestCallData('/rest/orders').subscribe((response:any) =>
+        {
+            console.log(response);
+            this.getorder =
+                {
+                    orderType: response.orderType,
+                    contactId: response.contactId
+                };
+        });
     }
 
     private createPluginData():void
@@ -99,12 +149,24 @@ export class StatsViewComponent implements OnInit
         this.user = {};
         this._statsDataService.getRestCallData('/rest/user').subscribe((response:any) =>
         {
-            console.log('Hello');
             this.user =
                 {
                     username: response.user,
                     email: response.user_email
                 };
         });
+    }
+
+    private loginData():void
+    {
+        this.login = {};
+        this._statsDataService.postRestCallData('/rest/login').subscribe((response:any) =>
+        {
+            this.login =
+                {
+                    accessToken: response.accessToken,
+                    tokenType: response.tokenType
+                };
+        }); //corse
     }
 }

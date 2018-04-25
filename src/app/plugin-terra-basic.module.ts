@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { LocalizationConfig } from './core/localization/terra-localization.config';
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
+import { ItoolsComponent } from './views/itools/itools.component';
 
 @NgModule({
     imports:      [
@@ -24,7 +25,8 @@ import { StatsDataService } from './views/stats-view/stats-view.service';
     declarations: [
         PluginTerraBasicComponent,
         StartComponent,
-        StatsViewComponent
+        StatsViewComponent,
+        ItoolsComponent
     ],
     providers:    [
         LocalizationConfig,

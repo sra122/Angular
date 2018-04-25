@@ -74,5 +74,27 @@
                 </div>
             </terra-portlet>
         </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <terra-base-toolbar>
+                    <terra-button inputIcon="icon-refresh"
+                                  inputTooltipText="fetch data"
+                                  inputTooltipPlacement="right"
+                                  (outputClicked)="orderItem()">
+                    </terra-button>
+                </terra-base-toolbar>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <terra-base-toolbar>
+                    <terra-button inputIcon="icon-refresh"
+                                  inputTooltipText="orders"
+                                  inputTooltipPlacement="right"
+                                  (outputClicked)="getorderItem()">
+                    </terra-button>
+                </terra-base-toolbar>
+            </div>
+        </div>
     </div>
 </div>

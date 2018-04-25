@@ -1,0 +1,18 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <terra-button inputCaption="Connect your Itools account"
+                          (outputClicked)="openOverlayWithPrimaryButton()">
+            </terra-button>
+            <terra-overlay #viewChildOverlayWithPrimaryButton
+                           inputOverlayTitle="Enter your username to synchronize the account"
+                           [inputIsLarge]="true"
+                           [inputPrimaryButtonInterface]="primaryButtonInterface">
+                <terra-text-input
+                        inputName="name"
+                        [(ngModel)]="_name">
+                </terra-text-input>
+            </terra-overlay>
+        </div>
+    </div>
+</div>
