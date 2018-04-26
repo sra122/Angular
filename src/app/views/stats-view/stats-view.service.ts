@@ -19,8 +19,19 @@ export class StatsDataService extends TerraBaseService
         if(process.env.ENV !== 'production')
         {
             // tslint:disable-next-line:max-line-length
-            this.bearer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjE2Njc3NzkzMzcxYmMzNGUwNmJjMWI2NDkyNWM4ZWU2OTZmMDMxYmUxYWEwNDg2ODE4YjMwOTEyOWUwNjU3ZDExMTExNWQ2MjQyNmQxODdkIn0.eyJhdWQiOiIxIiwianRpIjoiMTY2Nzc3OTMzNzFiYzM0ZTA2YmMxYjY0OTI1YzhlZTY5NmYwMzFiZTFhYTA0ODY4MThiMzA5MTI5ZTA2NTdkMTExMTE1ZDYyNDI2ZDE4N2QiLCJpYXQiOjE1MjQyMDg5MTQsIm5iZiI6MTUyNDIwODkxNCwiZXhwIjoxNTI0Mjk1MzE0LCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.oDFXndusZdjh_eymxZUYFndttYssAABbAKVf6Tb2ctRT54_FwhkqRcytjig9iWf7Mz5VpIvVdn6xq48bbMPF9a1Gagr4TN2d99sDxrY1B4b-3g51RnoGMICd4vzY5fUjaXbKn8cQiYSNeIr7-05EIZDCaVgmMuBeM24XFwc8vOIlY4IeKat5Kz1u164E1HULmvkEPYOXObj0XXNTiGsjflpa5jlaqv-Q8NsNN19rZTOAdQhOM47KbaVxC0FTI3N-zMocPOHgSnKiuKd1SqBESbNGrc_ge3l69reW18GriuEnoNtzxiaPvxQIXW5IleLit6hmnYPNQOlyQUFxqkvWfct1foJZxBkYCiDZFBu1Av43_Y8LEV2BvlV2no4XNNLIpO9dPd1BjEj_1qhWdxnowKw6tczMfovmvH7yjILqfQJ3F7Vmf6f5Beq9Dxs4OAjP1IVTi-EoepsYzaP6fnH3FIPE-XePVkkPjmM3F8ands1AETUfX41R3ObqeEZdljK-xVBiumW1o5mQ0NLvHtRkGNfdSLxGRYk_JC6DD-MGNpmf_96a-Wfh7hafnhYIu_JXYYu3sUE01QVYxj4OSPBeDkJKQJKNAywpgin4b1Dbh3s9Z59nu3G525yqnLCxqC3RM4Y51AXurBsc1C4cSHuoGnC3Dt7cYvfuHs8zdnFxZSI';
-            this._basePathUrl = 'https://3383e1f8357cdd83e128877ba39770a8e5cc08d5.plentymarkets-cloud-de.com';
+            this.bearer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjAxNzQ0MmZhNDAzMzRkMzY1YjFhNjcyZTY3NmI5O' +
+                        'TRjZjg2NTQ0YTFjOGZkNjZiN2Q5Y2EwMGNmODA1ODU4YTg4N2Q5NTk5MTM3ZDUxZWNhIn0.eyJhdWQiOiIxIiwi' +
+                        'anRpIjoiMDE3NDQyZmE0MDMzNGQzNjViMWE2NzJlNjc2Yjk5NGNmODY1NDRhMWM4ZmQ2NmI3ZDljYTAwY2Y4MDU' +
+                        '4NThhODg3ZDk1OTkxMzdkNTFlY2EiLCJpYXQiOjE1MjQ3MjczMjMsIm5iZiI6MTUyNDcyNzMyMywiZXhwIjoxNT' +
+                        'I0ODEzNzIzLCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.DC-i74vLaz1AXP9LX8IlG-6xESEy2Fkf2v_paTtkg' +
+                        'x7ArYpClQz9tC-LBFwmbWa46y3epprwWvFxsLFx84QgdexCVMvxlwoh8Ls-qEceKTTIj473PWiX7TMJrMWgOtRq' +
+                        '5g2SAnWLrc0-p4Wek3IPVNA3z3-3UfLpXdN2nsj1EM_gBFOhynhgEl-duDiDG2Cst1iZt9NIGBUaTrzBOU6u50-' +
+                        '6bPFJ-LKP9xWPRSQPagNGhfOqOkK9avSGyAGxK_MY4NdLE0RJtPB9bkLqGXUqKM_rBBYh1hra2fiufwzZMK7cPF' +
+                        'LPAgfcSZCzC7_DOuk9O12-F4M55vnUTLzOV10spsXB6pvKupAXGCN_5BFbSjJXxv538439XBRNiQsVB-2K9tgzOL' +
+                        'DiFTp5dEAXmaX3wsYnCFnp6vGm7GVrmHPaROT9UuFdKS2UYK3nYBjWQT8WewTkfRiG4JWEvzw1qvbXm8ZnAW-aVe' +
+                        'qcOkuJ4LpD7nqBX6tNUi4xQIJ_Pu17p7MT_4q6mjGKECu2oYe5PhNLrMIsgUL085TqHpyHBmgWeTfbXQGD1jEdDZJ' +
+                        'Nt9GUANVHqmJ1deb69UUdlXlhY_nnutcszuWlCEozqWUD-qPTeiGEOLmtKhBzqgeb-PNZn4xO4oubK-7s1T9QMPhdLKQBzzPpankj85CWqfawKkVsN8I';
+            this._basePathUrl = 'https://i-ways.plentymarkets-cloud02.com';
             this.url = this._basePathUrl + this.url;
         }
         this.setHeader();
