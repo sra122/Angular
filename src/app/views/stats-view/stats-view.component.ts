@@ -23,12 +23,6 @@ interface WebStoreInterface
     type?:string;
 }
 
-interface LoginInterface
-{
-    accessToken?:string;
-    tokenType?:string;
-}
-
 interface OrderInterface
 {
     id?:number;
@@ -53,7 +47,6 @@ export class StatsViewComponent implements OnInit
     public webStores:Array<WebStoreInterface>;
     public order:OrderInterface;
     public getorder:GetOrderInterface;
-    public login:LoginInterface;
 
     private _alert:TerraAlertComponent;
 
@@ -64,7 +57,6 @@ export class StatsViewComponent implements OnInit
 
     public ngOnInit():void
     {
-        this.updateData();
     }
 
     public updateData():void
@@ -72,7 +64,6 @@ export class StatsViewComponent implements OnInit
         this.createPluginData();
         this.createUserData();
         this.createWebStoreData();
-        this.loginData();
         this._alert.addAlert(
             {
                 msg:'Fetching data',
@@ -155,18 +146,5 @@ export class StatsViewComponent implements OnInit
                     email: response.user_email
                 };
         });
-    }
-
-    private loginData():void
-    {
-        this.login = {};
-        this._statsDataService.postRestCallData('/rest/login').subscribe((response:any) =>
-        {
-            this.login =
-                {
-                    accessToken: response.accessToken,
-                    tokenType: response.tokenType
-                };
-        }); //corse
     }
 }
