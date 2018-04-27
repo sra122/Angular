@@ -68,6 +68,9 @@ export class ItoolsComponent implements OnInit
 
     private showValues():void
     {
-        alert(this._name);
+        //alert(this._name);
+        let popup = window.open('https://www.google.com', '', 'toolbar=no, ' +
+                    'location=#, directories=no, status=no, menubar=no, scrollbars=yes, ' +
+                    'resizable=no, copyhistory=no, width=600, height=600, top=0, left=50' );
     }
 }
