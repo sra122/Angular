@@ -5,6 +5,7 @@ import {
     TerraBaseService,
     TerraLoadingSpinnerService
 } from '@plentymarkets/terra-components';
+import { isNullOrUndefined } from 'util';
 
 interface LoginInterface
 {
@@ -15,7 +16,6 @@ interface LoginInterface
 @Injectable()
 export class StatsDataService extends TerraBaseService
 {
-    public bearer:string;
     private _basePathUrl:string;
     private login:LoginInterface;
     constructor(private _loadingSpinnerService:TerraLoadingSpinnerService,
@@ -93,9 +93,8 @@ export class StatsDataService extends TerraBaseService
 
     private setHeader(bearer:string):void
     {
-        this.bearer = bearer;
-        if(this.bearer !== null && this.bearer.length > 0) {
-            this.headers.set('Authorization', 'Bearer ' + this.bearer);
+        if(!isNullOrUndefined(bearer)) {
+            this.headers.set('Authorization', 'Bearer ' + bearer);
             this.headers.set('Access-Control-Allow-Methods', 'GET, POST');
             this.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
             this.headers.set('Access-Control-Allow-Origin', '*');
