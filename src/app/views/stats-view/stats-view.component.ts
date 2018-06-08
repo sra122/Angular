@@ -73,24 +73,10 @@ export class StatsViewComponent implements OnInit
             });
     }
 
-    public orderItem():void
-    {
-        this.order = {};
-        this._statsDataService.postCreateOrder('/rest/orders').subscribe((response:any) =>
-        {
-            console.log(response);
-            this.order =
-                {
-                    id: response.id,
-                    typeId: response.typeId
-                };
-        });
-    }
-
     public getorderItem():void
     {
         this.getorder = {};
-        this._statsDataService.getRestCallData('/rest/orders').subscribe((response:any) =>
+        this._statsDataService.getRestCallData('orders').subscribe((response:any) =>
         {
             console.log(response);
             this.getorder =
@@ -104,7 +90,7 @@ export class StatsViewComponent implements OnInit
     private createPluginData():void
     {
         this.plugins = [];
-        this._statsDataService.getRestCallData('/rest/plugins').subscribe((response:Array<any>) =>
+        this._statsDataService.getRestCallData('plugins').subscribe((response:Array<any>) =>
         {
             for(let plugin of response)
             {
@@ -121,7 +107,7 @@ export class StatsViewComponent implements OnInit
     private createWebStoreData():void
     {
         this.webStores = [];
-        this._statsDataService.getRestCallData('/rest/webstores').subscribe((response:Array<any>) =>
+        this._statsDataService.getRestCallData('webstores').subscribe((response:Array<any>) =>
         {
             for(let store of response)
             {
@@ -138,7 +124,7 @@ export class StatsViewComponent implements OnInit
     private createUserData():void
     {
         this.user = {};
-        this._statsDataService.getRestCallData('/rest/user').subscribe((response:any) =>
+        this._statsDataService.getRestCallData('user').subscribe((response:any) =>
         {
             this.user =
                 {
