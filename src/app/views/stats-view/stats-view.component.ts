@@ -3,7 +3,8 @@ import {
     OnInit
 } from '@angular/core';
 import { StatsDataService } from './stats-view.service';
-import { TerraAlertComponent } from '@plentymarkets/terra-components';
+import { TerraAlertComponent, TerraLeafInterface } from '@plentymarkets/terra-components';
+import { isNullOrUndefined } from 'util';
 
 interface PluginInterface
 {
@@ -35,6 +36,25 @@ interface GetOrderInterface
     contactId?:number;
 }
 
+interface CategoriesInterface
+{
+    id?:number;
+    level?:number;
+    name?:any;
+    parentId?:number;
+    children?:Array<CategoriesInterface>;
+    details?:Array<CategoriesInterface>;
+}
+
+interface VendorCategoriesInterface
+{
+    id?:number;
+    name?:string;
+    children_ids?:Array<VendorCategoriesInterface>;
+    children?:Array<VendorCategoriesInterface>;
+    level?:number;
+}
+
 @Component({
     selector: 'stats-view',
     template: require('./stats-view.component.html'),
@@ -44,6 +64,8 @@ export class StatsViewComponent implements OnInit
 {
     public plugins:Array<PluginInterface>;
     public user:UserInterface;
+    public categories:Array<CategoriesInterface>;
+    public vendorCategories:Array<VendorCategoriesInterface>;
     public webStores:Array<WebStoreInterface>;
     public order:OrderInterface;
     public getorder:GetOrderInterface;
@@ -64,6 +86,8 @@ export class StatsViewComponent implements OnInit
         this.createPluginData();
         this.createUserData();
         this.createWebStoreData();
+        this.getCategories();
+        this.getVendorCategories();
         this._alert.addAlert(
             {
                 msg:'Fetching data',
@@ -132,5 +156,80 @@ export class StatsViewComponent implements OnInit
                     email: response.user_email
                 };
         });
+    }
+
+    private getCategories():void
+    {
+        this.categories = [];
+        this._statsDataService.getRestCallData('markets/panda-black/parent-categories').subscribe((response:any) =>
+        {
+            for(let category of response.categoryDetails)
+            {
+                this.categories.push(this.getChildCategories(category));
+            }
+        });
+    }
+
+    private getChildCategories(category:CategoriesInterface):TerraLeafInterface
+    {
+        let leafData:TerraLeafInterface = {
+            caption: category.details[0].name,
+            id: category.id,
+            icon:null,
+            subLeafList:null,
+            isOpen: false
+        };
+
+        if(!isNullOrUndefined(category.children))
+        {
+            leafData.icon = 'icon-folder';
+            leafData.subLeafList = [];
+            category.children.forEach((child:any) =>
+            {
+                leafData.subLeafList.push(this.getChildCategories(child));
+            });
+        }
+
+        return leafData;
+    }
+
+    private getVendorCategories():void
+    {
+        this.vendorCategories = [];
+        this._statsDataService.getRestCallData('markets/panda-black/vendor-categories').subscribe((response:any) =>
+        {
+            for(let category of response)
+            {
+                this.vendorCategories.push(this.getVendorChildCategories(category));
+            }
+        });
+    }
+
+    private getVendorChildCategories(category:CategoriesInterface):TerraLeafInterface
+    {
+        let vendorLeafData:TerraLeafInterface = {
+            caption: category.name,
+            id: category.id,
+            icon:null,
+            subLeafList:null,
+        };
+
+        if(!isNullOrUndefined(category.children))
+        {
+            if(category.children.length > 0)
+            {
+                vendorLeafData.icon = 'icon-folder';
+                vendorLeafData.isOpen = true;
+            } else {
+                vendorLeafData.isOpen = false;
+            }
+            vendorLeafData.subLeafList = [];
+            category.children.forEach((child:any) =>
+            {
+                vendorLeafData.subLeafList.push(this.getVendorChildCategories(child));
+            });
+        }
+
+        return vendorLeafData;
     }
 }

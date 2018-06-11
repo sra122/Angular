@@ -17,7 +17,7 @@ export class CategoriesService extends TerraBaseService
                 http:Http,
                 public translation:TranslationService)
     {
-        super(loadingBarService, http, '/rest/markets/panda-black/categories');
+        super(loadingBarService, http, 'markets/panda-black/parent-categories');
 
         if(process.env.ENV !== 'production')
         {
