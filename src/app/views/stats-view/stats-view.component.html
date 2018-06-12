@@ -3,111 +3,24 @@
     <div class="row">
         <div class="col-sm-12">
             <terra-base-toolbar>
-                <terra-button inputIcon="icon-refresh"
+                <terra-button inputIcon="icon-add"
                               inputTooltipText="fetch data"
                               inputTooltipPlacement="right"
-                              (outputClicked)="updateData()">
+                              (outputClicked)="categoryExtraction()">
                 </terra-button>
             </terra-base-toolbar>
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12">
-            <terra-portlet inputPortletHeader="User information">
-                <div class="row content">
-                    <div class="col-xs-2">
-                        <div class="user-information-container">
-                            <strong>Username:</strong>
-                            <br>
-                            <strong>Email:</strong>
-                            <br>
-                            <strong>Plugins:</strong>
-                        </div>
-                    </div>
-                    <div class="col-xs-3">
-                        <div *ngIf="(user | json) != '{}'" class="user-information-container">
-                            <span>{{user?.username}}</span>
-                            <br>
-                            <span>{{user?.email}}</span>
-                            <br>
-                            <span>{{plugins?.length}}</span>
-                        </div>
-                    </div>
-                </div>
+        <div class="col-xs-12 col-md-6 col-lg-6">
+            <terra-portlet>
+                <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
             </terra-portlet>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-          <terra-tree [inputLeafList] = "categories">
-          </terra-tree>
-        </div>
-    </div>
-    <p>Vendor</p>
-    <div class="row">
-        <div class="col-sm-12">
-            <terra-tree [inputLeafList] = "vendorCategories">
-            </terra-tree>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-6">
-            <terra-portlet inputPortletHeader="Installed webstores">
-                <div class="content">
-                    <table>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                        </tr>
-                        <tr *ngFor="let store of webStores">
-                            <td>{{store.id}}</td>
-                            <td>{{store.name}}</td>
-                            <td>{{store.type}}</td>
-                        </tr>
-                    </table>
-                </div>
+        <div class="col-xs-12 col-md-6 col-lg-6">
+            <terra-portlet>
+                <terra-tree [inputLeafList]="categories"></terra-tree>
             </terra-portlet>
-        </div>
-        <div class="col-sm-6">
-            <terra-portlet inputPortletHeader="Installed plugins" [inputIsCollapsable]="true">
-                <div class="content">
-                    <table>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Created at</th>
-                        </tr>
-                        <tr *ngFor="let plugin of plugins">
-                            <td>{{plugin.id}}</td>
-                            <td>{{plugin.name}}</td>
-                            <td>{{plugin.created_at}}</td>
-                        </tr>
-                    </table>
-                </div>
-            </terra-portlet>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <terra-base-toolbar>
-                    <terra-button inputIcon="icon-refresh"
-                                  inputTooltipText="fetch data"
-                                  inputTooltipPlacement="right"
-                                  (outputClicked)="orderItem()">
-                    </terra-button>
-                </terra-base-toolbar>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <terra-base-toolbar>
-                    <terra-button inputIcon="icon-refresh"
-                                  inputTooltipText="orders"
-                                  inputTooltipPlacement="right"
-                                  (outputClicked)="getorderItem()">
-                    </terra-button>
-                </terra-base-toolbar>
-            </div>
         </div>
     </div>
 </div>
