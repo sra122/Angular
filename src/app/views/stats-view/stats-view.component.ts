@@ -5,6 +5,7 @@ import {
 import { StatsDataService } from './stats-view.service';
 import { TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface } from '@plentymarkets/terra-components';
 import { Translation, TranslationService } from 'angular-l10n';
+import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
 import { isNullOrUndefined } from 'util';
 
@@ -42,13 +43,14 @@ interface CategoryInterface
 {
     id?:number;
     caption?:any;
+    name?:any;
     subLeafList?:Array<CategoryInterface>;
 }
 
 interface VendorCategoryCorrelationInterface
 {
-    category?:CategoryInterface;
-    vendorCategory?:VendorCategoriesInterface;
+    category?:any;
+    vendorCategory?:any;
 }
 
 @Component({
@@ -63,13 +65,20 @@ export class StatsViewComponent extends Translation implements OnInit
     public category:CategoryInterface;
     public vendorCategories:Array<VendorCategoriesInterface>;
     public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
+    public vendorCategoriesCorrelationArray:Array<any>;
 
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
     private _isLoading:boolean;
 
+    private vendorCategoryName:string;
+    private categoryName:string;
+    private vendorCategoryArray:Array<any>;
+    private categoryArray:Array<any>;
+
     constructor(private _statsDataService:StatsDataService,
-                public translation:TranslationService)
+                public translation:TranslationService,
+                private _vendorCategory:VendorCategoriesService)
     {
         super(translation);
 
@@ -78,6 +87,10 @@ export class StatsViewComponent extends Translation implements OnInit
         this._alert = TerraAlertComponent.getInstance();
 
         this._lastUiId = 0;
+
+        this.vendorCategoryName = '';
+        this.categoryName = '';
+        this.vendorCategoriesCorrelationArray = [];
     }
 
     public ngOnInit():void
@@ -169,7 +182,6 @@ export class StatsViewComponent extends Translation implements OnInit
         this.category = {};
         this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + id).subscribe((response:any) =>
         {
-            console.log(response);
         });
     }
 
@@ -185,9 +197,8 @@ export class StatsViewComponent extends Translation implements OnInit
             isOpen: false,
             clickFunction:  ():void =>
                             {
-                                this.vendorCategoriesCorrelation = {
-                                    category: category
-                                };
+                                this.categoryArray = [];
+                                this.categoryArray.push(category);
                                 this.getCategory(category.id);
                                 this.createCorrelation();
                             }
@@ -226,10 +237,11 @@ export class StatsViewComponent extends Translation implements OnInit
             id: category.id,
             icon:null,
             subLeafList:null,
-            isOpen:false,
             clickFunction: ():void =>
                             {
-                                console.log(category);
+                                this.vendorCategoryArray = [];
+                                this.vendorCategoryArray.push(category);
+                                this.createCorrelation();
                             }
         };
 
@@ -238,9 +250,9 @@ export class StatsViewComponent extends Translation implements OnInit
             if(category.children.length > 0)
             {
                 vendorLeafData.icon = 'icon-folder';
-            } else {
                 vendorLeafData.subLeafList = [];
             }
+
             category.children.forEach((child:any) =>
             {
                 vendorLeafData.subLeafList.push(this.getVendorChildCategories(child));
@@ -253,27 +265,15 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelation():void
     {
-        let vendorCategoryName:string;
-        let categoryName:string;
-
-        console.log(this.vendorCategoriesCorrelation.vendorCategory);
-        console.log(this.vendorCategoriesCorrelation.category);
-
-        if(!isNullOrUndefined(this.vendorCategoriesCorrelation.vendorCategory.name))
+        if(!isNullOrUndefined(this.vendorCategoryArray) && !isNullOrUndefined((this.categoryArray)))
         {
-            vendorCategoryName = this.vendorCategoriesCorrelation.vendorCategory.name;
-        } else {
-            vendorCategoryName = '?';
+            this.vendorCategoriesCorrelation = {
+                category: this.categoryArray,
+                vendorCategory: this.vendorCategoryArray
+            };
+            this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
+            this._vendorCategory.saveCorrelations(this.vendorCategoriesCorrelationArray);
         }
-
-        if(!isNullOrUndefined(this.vendorCategoriesCorrelation.category.caption))
-        {
-            categoryName = this.vendorCategoriesCorrelation.category.caption;
-        } else {
-            categoryName = '?';
-        }
-
-        console.log(vendorCategoryName + ' ' + categoryName);
     }
 
 }

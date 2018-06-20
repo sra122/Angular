@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { TranslationService } from 'angular-l10n';
 import { CategoryInterface } from './data/categories.interface';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class CategoriesService extends TerraBaseService
@@ -66,7 +67,7 @@ export class CategoriesService extends TerraBaseService
 
     private setHeader():void
     {
-        if(this.bearer !== null && this.bearer.length > 0)
+        if(!isNullOrUndefined(this.bearer))
         {
             this.headers.set('Authorization', 'Bearer' + this.bearer);
         }

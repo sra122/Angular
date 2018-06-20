@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { TranslationService } from 'angular-l10n';
 import { VendorCategoriesInterface } from './data/vendor-categories.interface';
 import { VendorCategoriesCorrelationInterface } from './data/vendor-categories-correlation.interface';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class VendorCategoriesService extends TerraBaseService
@@ -18,7 +19,7 @@ export class VendorCategoriesService extends TerraBaseService
                 http:Http,
                 public translation:TranslationService)
     {
-        super(loadingBarService, http, 'markets/panda-black/vendor-categories');
+        super(loadingBarService, http, 'markets/panda-black/vendor-categories/');
 
         if(process.env.ENV !== 'production')
         {
@@ -80,17 +81,17 @@ export class VendorCategoriesService extends TerraBaseService
         );
     }
 
-    public saveCorrelations(taxonomyCorrelations:Array<VendorCategoriesCorrelationInterface>):Observable<void>
+    public saveCorrelations(taxonomyCorrelations:Array<any>):Observable<void>
     {
+        console.log(taxonomyCorrelations);
         this.setAuthorization();
         this.setHeader();
 
         let url:string = this.url + 'correlations';
 
         return this.mapRequest(
-            this.http.post(url,
-                {},
-                {
+            this.http.post(url, {
+                }, {
                     headers: this.headers,
                     body: {
                         correlations: taxonomyCorrelations
@@ -101,9 +102,9 @@ export class VendorCategoriesService extends TerraBaseService
 
     private setHeader():void
     {
-        if(this.bearer !== null && this.bearer.length > 0)
+        if(!isNullOrUndefined(this.bearer))
         {
-            this.headers.set('Authorization', 'Bearer' + this.bearer);
+            this.headers.set('Authorization', 'Bearer ' + this.bearer);
         }
     }
 }
