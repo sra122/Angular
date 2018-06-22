@@ -66,6 +66,7 @@ export class StatsViewComponent extends Translation implements OnInit
     public vendorCategories:Array<VendorCategoriesInterface>;
     public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
     public vendorCategoriesCorrelationArray:Array<any>;
+    public categoryMapping:Array<any>;
 
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
@@ -78,7 +79,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
-                private _vendorCategory:VendorCategoriesService)
+                public _vendorCategories:VendorCategoriesService)
     {
         super(translation);
 
@@ -101,68 +102,7 @@ export class StatsViewComponent extends Translation implements OnInit
     {
         this.getCategories();
         this.getVendorCategories();
-        /*this._isLoading = true;
-
-        this._loadingConfig.callLoadingEvent(true);
-
-        Observable.combineLatest(
-            this._categoriesService.getCategories(),
-            this._vendorCategoriesService.getVendorCategories(),
-            this._vendorCategoriesService.getCorrelations(),
-            (categories:any, vendorCategories:any, vendorCategoryCorrelations:any) =>
-            {
-                return {
-                    categories: categories,
-                    vendorCategories: vendorCategories,
-                    vendorCategoryCorrelations: vendorCategoryCorrelations
-                };
-            }
-        ).subscribe(
-            (data:any) => {
-                data.vendorCategoryCorrelations.forEach((vendorCategoryCorrelation:VendorCategoriesCorrelationInterface) => {
-                    this._lastUiId++;
-
-                    this.vendorCategoriesCorrelation.push({
-                        uiId: this._lastUiId,
-                        vendorCategory: vendorCategoryCorrelation.vendorCategory,
-                        category: vendorCategoryCorrelation.category
-                    });
-                });
-
-                this._editSplitViewConfig.addView({
-                    module: VendorCategoriesListModule.forRoot(),
-                    defaultWidth: 'col-xs-12 col-md-4 col-lg-3',
-                    focusedWidth: 'col-xs-12 col-md-12 col-lg-12',
-                    name: this.translation.translate('vendorCategories.splitViewNames.correlations'),
-                    mainComponentName: VendorCategoriesListModule.getMainComponent(),
-                    isBackgroundColorGrey: true,
-                    inputs: [
-                        {
-                            name: 'vendorCategories',
-                            value: data.vendorCategories
-                        },
-                        {
-                            name: 'categories',
-                            value: data.categories
-                        },
-                        {
-                            name: 'vendorCategoryCorrelations',
-                            value: this.vendorCategoriesCorrelation
-                        }
-                    ]
-                }, this.splitViewInstance);
-
-                this._isLoading = false;
-
-                this._loadingConfig.callLoadingEvent(false);
-            },
-            (error:any) =>
-            {
-                this._loadingConfig.callLoadingEvent(false);
-                this._isLoading = false;
-                let message:any =  error.json();
-                this._alertConfig.callStatusEvent(message.error.code + ' ' + message.error.message, 'danger');
-            });*/
+        this.getCorrelation();
     }
 
     private getCategories():void
@@ -262,6 +202,20 @@ export class StatsViewComponent extends Translation implements OnInit
         return vendorLeafData;
     }
 
+    private getCorrelation():void
+    {
+        this.categoryMapping = [];
+
+        this._statsDataService.getRestCallData('markets/settings').subscribe((response:any) =>
+        {
+            console.log(response);
+            for(let category of response)
+            {
+                this.categoryMapping.push(category);
+            }
+        });
+    }
+
 
     private createCorrelation():void
     {
@@ -272,7 +226,7 @@ export class StatsViewComponent extends Translation implements OnInit
                 vendorCategory: this.vendorCategoryArray
             };
             this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
-            this._vendorCategory.saveCorrelations(this.vendorCategoriesCorrelationArray);
+            this._vendorCategories.saveCorrelations(this.vendorCategoriesCorrelationArray);
         }
     }
 

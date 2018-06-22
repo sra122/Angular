@@ -7,7 +7,6 @@ import {
 import { Observable } from 'rxjs';
 import { TranslationService } from 'angular-l10n';
 import { VendorCategoriesInterface } from './data/vendor-categories.interface';
-import { VendorCategoriesCorrelationInterface } from './data/vendor-categories-correlation.interface';
 import { isNullOrUndefined } from 'util';
 
 @Injectable()
@@ -66,36 +65,18 @@ export class VendorCategoriesService extends TerraBaseService
         );
     }
 
-
-    public getCorrelations():Observable<Array<VendorCategoriesCorrelationInterface>>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + 'correlations';
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-            })
-        );
-    }
-
     public saveCorrelations(taxonomyCorrelations:Array<any>):Observable<void>
     {
-        console.log(taxonomyCorrelations);
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + 'correlations';
+        let url:string = '/rest/markets/settings';
 
         return this.mapRequest(
             this.http.post(url, {
+                taxonomyCorrelations
                 }, {
-                    headers: this.headers,
-                    body: {
-                        correlations: taxonomyCorrelations
-                    }
+                    headers: this.headers
                 })
         );
     }
