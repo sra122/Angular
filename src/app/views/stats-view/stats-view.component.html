@@ -8,7 +8,18 @@
                               inputTooltipPlacement="right"
                               (outputClicked)="categoryExtraction()">
                 </terra-button>
+                <terra-button inputIcon="icon-delete"
+                              inputTooltipText="delete correlation"
+                              inputIsSecondary="true"
+                              inputTooltipPlacement="right"
+                              (outputClicked)="deleteCorrelations()">
+                </terra-button>
             </terra-base-toolbar>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-md-6 col-lg-6">
+            {{categoryMapping}}
         </div>
     </div>
     <div class="row">
@@ -22,8 +33,5 @@
                 <terra-tree [inputLeafList]="categories"></terra-tree>
             </terra-portlet>
         </div>
-    </div>
-    <div class="row">
-        {{ categoryMapping | json }}
     </div>
 </div>

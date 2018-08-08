@@ -18,7 +18,7 @@ export class VendorCategoriesService extends TerraBaseService
                 http:Http,
                 public translation:TranslationService)
     {
-        super(loadingBarService, http, 'markets/panda-black/vendor-categories/');
+        super(loadingBarService, http, '/rest/markets/panda-black/');
 
         if(process.env.ENV !== 'production')
         {
@@ -27,56 +27,20 @@ export class VendorCategoriesService extends TerraBaseService
         }
     }
 
-    public getVendorCategory(id:number):Observable<VendorCategoriesInterface>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + id;
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body: '',
-                search: {
-                    lang: this.translation.getLanguage(),
-                    with: ['path']
-                }
-            })
-        );
-    }
-
-    public getVendorCategories():Observable<Array<VendorCategoriesInterface>>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url;
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body:    '',
-                search:  {
-                    lang: this.translation.getLanguage(),
-                    with: ['children']
-                }
-            })
-        );
-    }
-
     public saveCorrelations(taxonomyCorrelations:Array<any>):Observable<void>
     {
+        console.log(taxonomyCorrelations);
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = '/rest/markets/settings';
+        let url:string = this.url + 'correlations';
 
         return this.mapRequest(
-            this.http.post(url, {
-                taxonomyCorrelations
+            this.http.post(url,
+                {
+                    correlations: taxonomyCorrelations
                 }, {
-                    headers: this.headers
+                    headers: this.headers,
                 })
         );
     }

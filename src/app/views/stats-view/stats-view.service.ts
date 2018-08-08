@@ -7,7 +7,6 @@ import {
 } from '@plentymarkets/terra-components';
 import { isNullOrUndefined } from 'util';
 
-
 @Injectable()
 export class StatsDataService extends TerraBaseService
 {
@@ -37,6 +36,38 @@ export class StatsDataService extends TerraBaseService
                 headers: this.headers,
                 body:    ''
             })
+        );
+    }
+
+    public postRestCallData(taxonomyCorrelations:Array<any>):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/correlations';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    correlations: taxonomyCorrelations
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
+    public deleteRestCallData(restRoute:string, id:number = null):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + restRoute;
+
+        return this.mapRequest(
+            this.http.delete(url,
+                {
+                    headers: this.headers
+                })
         );
     }
 

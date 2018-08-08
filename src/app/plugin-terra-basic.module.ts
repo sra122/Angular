@@ -13,7 +13,7 @@ import { LocalizationConfig } from './core/localization/terra-localization.confi
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
-import {VendorCategoriesService} from "./core/rest/markets/panda-black/vendorcategories/vendorcategories.service";
+import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
 @NgModule({
     imports:      [

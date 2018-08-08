@@ -3,11 +3,12 @@ import {
     OnInit
 } from '@angular/core';
 import { StatsDataService } from './stats-view.service';
-import { TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface } from '@plentymarkets/terra-components';
+import { TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraTagInterface } from '@plentymarkets/terra-components';
 import { Translation, TranslationService } from 'angular-l10n';
 import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
 import { isNullOrUndefined } from 'util';
+import { forEach } from '@angular/router/src/utils/collection';
 
 interface CategoriesInterface
 {
@@ -18,6 +19,24 @@ interface CategoriesInterface
     children?:Array<CategoriesInterface>;
     details?:Array<CategoriesInterface>;
     subLeafList?:Array<CategoryInterface>;
+}
+
+interface CorrelationsInterface
+{
+    entries?:Array<CorrelationInterface>;
+}
+
+interface CorrelationInterface
+{
+    id?:number;
+    type?:string;
+    settings?:Array<EachCategoryMappingInterface>;
+}
+
+interface EachCategoryMappingInterface
+{
+    category?:Array<CategoryInterface>;
+    vendorCategory?:Array<VendorCategoryInterface>;
 }
 
 interface VendorCategoriesInterface
@@ -66,7 +85,7 @@ export class StatsViewComponent extends Translation implements OnInit
     public vendorCategories:Array<VendorCategoriesInterface>;
     public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
     public vendorCategoriesCorrelationArray:Array<any>;
-    public categoryMapping:Array<any>;
+    @Input() public categoryMapping:Array<CorrelationsInterface>;
 
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
@@ -92,6 +111,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this.vendorCategoryName = '';
         this.categoryName = '';
         this.vendorCategoriesCorrelationArray = [];
+        this.categoryMapping = [];
     }
 
     public ngOnInit():void
@@ -100,12 +120,12 @@ export class StatsViewComponent extends Translation implements OnInit
 
     public categoryExtraction():void
     {
-        this.getCategories();
+        this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
     }
 
-    private getCategories():void
+    private getParentCategories():void
     {
         this.categories = [];
         this._statsDataService.getRestCallData('markets/panda-black/parent-categories').subscribe((response:any) =>
@@ -117,11 +137,12 @@ export class StatsViewComponent extends Translation implements OnInit
         });
     }
 
-    private getCategory(id:number):void
+    private getParentCategory(id:number):void
     {
         this.category = {};
         this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + id).subscribe((response:any) =>
         {
+            console.log(response);
         });
     }
 
@@ -139,7 +160,7 @@ export class StatsViewComponent extends Translation implements OnInit
                             {
                                 this.categoryArray = [];
                                 this.categoryArray.push(category);
-                                this.getCategory(category.id);
+                                this.getParentCategory(category.id);
                                 this.createCorrelation();
                             }
         };
@@ -202,32 +223,54 @@ export class StatsViewComponent extends Translation implements OnInit
         return vendorLeafData;
     }
 
-    private getCorrelation():void
+    private getCorrelation():any
     {
-        this.categoryMapping = [];
-
-        this._statsDataService.getRestCallData('markets/settings').subscribe((response:any) =>
+        this._statsDataService.getRestCallData('markets/panda-black/correlations').subscribe((response:any) =>
         {
-            console.log(response);
-            for(let category of response)
+            for(let category of response.entries)
             {
                 this.categoryMapping.push(category);
             }
         });
+        return this.categoryMapping;
     }
-
 
     private createCorrelation():void
     {
         if(!isNullOrUndefined(this.vendorCategoryArray) && !isNullOrUndefined((this.categoryArray)))
         {
-            this.vendorCategoriesCorrelation = {
-                category: this.categoryArray,
-                vendorCategory: this.vendorCategoryArray
-            };
-            this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
-            this._vendorCategories.saveCorrelations(this.vendorCategoriesCorrelationArray);
+           if(this.vendorCategoryArray.length > 0 && this.categoryArray.length > 0)
+           {
+               let count:number = 0;
+               this.categoryMapping.forEach(function (value:any):void {
+                   if(
+                       this.vendorCategoryArray[0].id === value.settings[0].vendorCategory[0].id &&
+                       this.categoryArray[0].id === value.settings[0].category[0].id
+                   )
+                   {
+                      count++;
+                   }
+               }.bind(this));
+               if(count <= 0)
+               {
+                   this.vendorCategoriesCorrelation = {
+                       category: this.categoryArray,
+                       vendorCategory: this.vendorCategoryArray
+                   };
+                   this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
+                   this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
+                   this.vendorCategoriesCorrelationArray = [];
+                   this.vendorCategoryArray.splice(0, 1);
+                   this.categoryArray.splice(0, 1);
+               }
+           }
         }
+    }
+
+
+    private deleteCorrelations():void
+    {
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlations');
     }
 
 }

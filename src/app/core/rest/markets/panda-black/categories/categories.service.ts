@@ -18,7 +18,7 @@ export class CategoriesService extends TerraBaseService
                 http:Http,
                 public translation:TranslationService)
     {
-        super(loadingBarService, http, 'markets/panda-black/parent-categories');
+        super(loadingBarService, http, '/rest/markets/panda-black/');
 
         if(process.env.ENV !== 'production')
         {
@@ -27,49 +27,11 @@ export class CategoriesService extends TerraBaseService
         }
     }
 
-    public getCategory(id:number):Observable<CategoryInterface>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + id;
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body: '',
-                search: {
-                    lang: this.translation.getLanguage(),
-                    with: ['path']
-                }
-            })
-        );
-    }
-
-    public getCategories():Observable<Array<CategoryInterface>>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url;
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body:    '',
-                search:  {
-                    lang: this.translation.getLanguage(),
-                    with: ['children']
-                }
-            })
-        );
-    }
-
     private setHeader():void
     {
         if(!isNullOrUndefined(this.bearer))
         {
-            this.headers.set('Authorization', 'Bearer' + this.bearer);
+            this.headers.set('Authorization', 'Bearer ' + this.bearer);
         }
     }
 }
