@@ -18,8 +18,46 @@
         </div>
     </div>
     <div class="row">
+        <terra-overlay #viewChildOverlayWithoutButtons
+                       inputOverlayTitle="Showcase overlay with no buttons"
+                       [inputIsLarge]="true">
+            {% set count = 0 %}
+            <div *ngFor="let attribute of _selectableVendorCategoriesList;">
+                {% set count = count + 1 %}
+                <div class="row">
+                    <div class="col-xs-5 col-md-5 col-lg-5" style="text-align: center">
+                        {{ attribute.value }}
+                    </div>
+                    <div class="col-xs-5 col-md-5 col-lg-5">
+                        <terra-select-box
+                                inputName="'attributes'.{{count}}"
+                                [inputListBoxValues]="_selectableOptionTypesList"
+                                [(ngModel)]="_pickedValue">
+                        </terra-select-box>
+                    </div>
+                    <div class="col-xs-2 col-md-2 col-lg-2">
+                        <terra-button inputIcon="icon-switch_editor"
+                                      inputTooltipText="map"
+                                      inputTooltipPlacement="right"
+                                      (outputClicked)="attributeMap(_pickedValue, attribute.value)">
+                        </terra-button>
+                    </div>
+                </div>
+            </div>
+        </terra-overlay>
+    </div>
+    <div class="row">
         <div class="col-xs-12 col-md-6 col-lg-6">
-            {{categoryMapping}}
+            <div *ngFor="let correlation of categoryMapping;">
+                <terra-info-box>
+                    <span body>
+                        {{ correlation.settings[0].vendorCategory[0].name }}
+                    </span><br><br>
+                    <span body>
+                        {{ correlation.settings[0].category[0].details[0].name }}
+                    </span>
+                </terra-info-box>
+            </div>
         </div>
     </div>
     <div class="row">

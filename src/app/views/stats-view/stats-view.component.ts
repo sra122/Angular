@@ -1,9 +1,13 @@
 import {
     Component, Input,
-    OnInit
+    OnInit, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { StatsDataService } from './stats-view.service';
-import { TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraTagInterface } from '@plentymarkets/terra-components';
+import {
+    TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraOverlayComponent,
+    TerraSelectBoxValueInterface, TerraSimpleTableCellInterface, TerraSimpleTableHeaderCellInterface,
+    TerraSimpleTableRowInterface
+} from '@plentymarkets/terra-components';
 import { Translation, TranslationService } from 'angular-l10n';
 import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
@@ -85,20 +89,24 @@ export class StatsViewComponent extends Translation implements OnInit
     public vendorCategories:Array<VendorCategoriesInterface>;
     public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
     public vendorCategoriesCorrelationArray:Array<any>;
+    @Input() public vendorCategoryArray:Array<any>;
     @Input() public categoryMapping:Array<CorrelationsInterface>;
+    @ViewChild('viewChildOverlayWithoutButtons') public viewChildOverlayWithoutButtons:TerraOverlayComponent;
+    private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
+    private _selectableVendorCategoriesList:Array<TerraSelectBoxValueInterface> = [];
 
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
     private _isLoading:boolean;
-
     private vendorCategoryName:string;
     private categoryName:string;
-    private vendorCategoryArray:Array<any>;
     private categoryArray:Array<any>;
+    private _viewContainerRef:ViewContainerRef;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
-                public _vendorCategories:VendorCategoriesService)
+                public _vendorCategories:VendorCategoriesService,
+                viewContainerRef:ViewContainerRef)
     {
         super(translation);
 
@@ -110,16 +118,26 @@ export class StatsViewComponent extends Translation implements OnInit
 
         this.vendorCategoryName = '';
         this.categoryName = '';
-        this.vendorCategoriesCorrelationArray = [];
         this.categoryMapping = [];
+        this.vendorCategoryArray = [];
+        this.vendorCategoriesCorrelationArray = [];
+        this._selectableOptionTypesList = [];
+        this._selectableVendorCategoriesList = [];
+        this._viewContainerRef = viewContainerRef;
     }
 
     public ngOnInit():void
     {
     }
 
+    public openOverlayWithoutButtons():void
+    {
+        this.viewChildOverlayWithoutButtons.showOverlay();
+    }
+
     public categoryExtraction():void
     {
+        this.categoryMapping = [];
         this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
@@ -142,7 +160,6 @@ export class StatsViewComponent extends Translation implements OnInit
         this.category = {};
         this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + id).subscribe((response:any) =>
         {
-            console.log(response);
         });
     }
 
@@ -257,16 +274,46 @@ export class StatsViewComponent extends Translation implements OnInit
                        category: this.categoryArray,
                        vendorCategory: this.vendorCategoryArray
                    };
+                   if(this.vendorCategoriesCorrelationArray.length > 0) {
+                       this.vendorCategoriesCorrelationArray = [];
+                   }
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
-                   this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
-                   this.vendorCategoriesCorrelationArray = [];
-                   this.vendorCategoryArray.splice(0, 1);
-                   this.categoryArray.splice(0, 1);
+                   this.openOverlayWithoutButtons();
+                   if(this.attributeMapping(this.vendorCategoryArray[0]))
+                   {
+                       this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
+                       this.vendorCategoryArray.splice(0, 1);
+                       this.categoryArray.splice(0, 1);
+                   }
                }
            }
         }
     }
 
+    private attributeMapping(vendorAttributes:any):boolean
+    {
+        vendorAttributes.attributeValueSets.forEach(function(attribute:any):void {
+            this._selectableVendorCategoriesList.push({
+               value: attribute.displayName
+            });
+        }.bind(this));
+        this._statsDataService.getRestCallData('markets/panda-black/attributes').subscribe((response:any) =>
+        {
+            for(let check of response.entries)
+            {
+                this._selectableOptionTypesList.push({
+                    value: check.backendName,
+                    caption: check.backendName
+                });
+            }
+        });
+        return true;
+    }
+
+    private attributeMap(attribute:string):any
+    {
+        console.log(attribute);
+    }
 
     private deleteCorrelations():void
     {
