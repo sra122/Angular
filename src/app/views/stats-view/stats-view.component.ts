@@ -4,7 +4,8 @@ import {
 } from '@angular/core';
 import { StatsDataService } from './stats-view.service';
 import {
-    TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraOverlayComponent,
+    TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraOverlayButtonInterface,
+    TerraOverlayComponent,
     TerraSelectBoxValueInterface, TerraSimpleTableCellInterface, TerraSimpleTableHeaderCellInterface,
     TerraSimpleTableRowInterface
 } from '@plentymarkets/terra-components';
@@ -12,7 +13,7 @@ import { Translation, TranslationService } from 'angular-l10n';
 import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
 import { isNullOrUndefined } from 'util';
-import { forEach } from '@angular/router/src/utils/collection';
+import { LoadingConfig } from '../../core/config/loading.config';
 
 interface CategoriesInterface
 {
@@ -76,6 +77,7 @@ interface VendorCategoryCorrelationInterface
     vendorCategory?:any;
 }
 
+
 @Component({
     selector: 'stats-view',
     template: require('./stats-view.component.html'),
@@ -91,7 +93,9 @@ export class StatsViewComponent extends Translation implements OnInit
     public vendorCategoriesCorrelationArray:Array<any>;
     @Input() public vendorCategoryArray:Array<any>;
     @Input() public categoryMapping:Array<CorrelationsInterface>;
-    @ViewChild('viewChildOverlayWithoutButtons') public viewChildOverlayWithoutButtons:TerraOverlayComponent;
+    @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
+    @ViewChild('viewChildOverlayAttribute') public viewChildOverlayAttribute:TerraOverlayComponent;
+    private _primaryButtonInterface:TerraOverlayButtonInterface;
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
     private _selectableVendorCategoriesList:Array<TerraSelectBoxValueInterface> = [];
 
@@ -102,6 +106,9 @@ export class StatsViewComponent extends Translation implements OnInit
     private categoryName:string;
     private categoryArray:Array<any>;
     private _viewContainerRef:ViewContainerRef;
+    private attributeMappingRecord:Array<any>;
+    private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
+    private selectedValue:string = '';
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -124,15 +131,23 @@ export class StatsViewComponent extends Translation implements OnInit
         this._selectableOptionTypesList = [];
         this._selectableVendorCategoriesList = [];
         this._viewContainerRef = viewContainerRef;
+        this.attributeMappingRecord = [];
     }
 
     public ngOnInit():void
     {
+        this._isLoading = true;
+        this.getCorrelation();
     }
 
-    public openOverlayWithoutButtons():void
+    public openOverlayForAttributeMapping():void
     {
-        this.viewChildOverlayWithoutButtons.showOverlay();
+        this.viewChildOverlayWithPrimaryButton.showOverlay();
+    }
+
+    public openOverlayForAttributeCreation():void
+    {
+        this.viewChildOverlayAttribute.showOverlay();
     }
 
     public categoryExtraction():void
@@ -210,6 +225,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private getVendorChildCategories(category:CategoriesInterface):TerraLeafInterface
     {
+        console.log(category);
         let vendorLeafData:TerraLeafInterface = {
             caption: category.name,
             id: category.id,
@@ -254,6 +270,8 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelation():void
     {
+        this._isLoading = true;
+
         if(!isNullOrUndefined(this.vendorCategoryArray) && !isNullOrUndefined((this.categoryArray)))
         {
            if(this.vendorCategoryArray.length > 0 && this.categoryArray.length > 0)
@@ -278,46 +296,97 @@ export class StatsViewComponent extends Translation implements OnInit
                        this.vendorCategoriesCorrelationArray = [];
                    }
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
-                   this.openOverlayWithoutButtons();
-                   if(this.attributeMapping(this.vendorCategoryArray[0]))
-                   {
-                       this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
-                       this.vendorCategoryArray.splice(0, 1);
-                       this.categoryArray.splice(0, 1);
-                   }
+                   this.openOverlayForAttributeMapping();
+                   this.attributeMapping(this.vendorCategoryArray[0]);
                }
            }
         }
     }
 
-    private attributeMapping(vendorAttributes:any):boolean
+    private createCorrelationMapping():void
     {
-        vendorAttributes.attributeValueSets.forEach(function(attribute:any):void {
+        this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+        this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
+        this.vendorCategoryArray.splice(0, 1);
+        this.categoryArray.splice(0, 1);
+    }
+
+    private attributeMapping(vendorCategoryData:any):void
+    {
+        this._selectableVendorCategoriesList = [];
+        this._selectableOptionTypesList = [];
+        vendorCategoryData.attributeValueSets.forEach(function(attribute:any):void {
             this._selectableVendorCategoriesList.push({
-               value: attribute.displayName
+               value: attribute.displayName,
+               caption: this._selectableVendorCategoriesList.length
             });
         }.bind(this));
         this._statsDataService.getRestCallData('markets/panda-black/attributes').subscribe((response:any) =>
         {
-            for(let check of response.entries)
+            for(let attribute of response.entries)
             {
                 this._selectableOptionTypesList.push({
-                    value: check.backendName,
-                    caption: check.backendName
+                    value: attribute.backendName,
+                    caption: attribute.backendName
                 });
             }
+
+            this._selectableOptionTypesList.push({
+               value: 'create_attribute',
+               caption: 'Create Attribute'
+            });
         });
-        return true;
+
+        this._primaryButtonInterface = {
+            icon:          'icon-confirm',
+            caption:       'Confirm Mapping',
+            isDisabled:    false,
+            clickFunction: ():void => this.confirmMapping(true)
+        };
     }
 
-    private attributeMap(attribute:string):any
+    private confirmMapping(response:boolean):void
     {
-        console.log(attribute);
+        this.alert.addAlert({
+            msg:              'Mapping is created',
+            type:             'success',
+            dismissOnTimeout: 0
+        });
+
+        if(response === true) {
+            this.createCorrelationMapping();
+        }
+
     }
 
-    private deleteCorrelations():void
+    private vendorAttributeMapping(plentyAttribute:string, vendorAttribute:string):any
+    {
+        if(plentyAttribute === 'create_attribute') {
+            this.openOverlayForAttributeCreation();
+        } else {
+            this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((response:any) => {
+                this.attributeMappingRecord.push(response);
+            });
+        }
+    }
+
+    private deleteAllCorrelations():void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlations');
     }
 
+    private createPlentyMarketAttribute(attributeName:string):any
+    {
+        this._statsDataService.postAttributeData(attributeName);
+    }
+
+    private deleteCorrelation(correlationId:number):void
+    {
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/', correlationId);
+        this._isLoading = true;
+    }
+
+    private selectedPlentyAttribute(event:any):any {
+        this.selectedValue = event.target.value;
+    }
 }

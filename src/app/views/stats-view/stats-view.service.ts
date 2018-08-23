@@ -56,13 +56,52 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+    public postAttributeData(attributeName:string):any
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/attribute';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    new_attribute: attributeName
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
+    public postAttributeMapping(vendorAttribute:string, plentyMarketAttribute:string):any
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/attribute-mapping';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    vendor_attribute: vendorAttribute,
+                    plenty_attribute: plentyMarketAttribute
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
     public deleteRestCallData(restRoute:string, id:number = null):Observable<void>
     {
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + restRoute;
-
+        let url:string = '';
+        if(id === null) {
+            url = this.url + restRoute;
+        } else {
+            url = this.url + restRoute + id;
+        }
         return this.mapRequest(
             this.http.delete(url,
                 {

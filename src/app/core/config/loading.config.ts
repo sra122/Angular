@@ -5,7 +5,7 @@ export class LoadingConfig
 {
     private _callLoadingEvent:(boolean) => void;
 
-    public get callLoadingEvent(): (value:boolean) => void
+    public get callLoadingEvent():(value:boolean) => void
     {
         return this._callLoadingEvent;
     }

@@ -12,34 +12,33 @@
                               inputTooltipText="delete correlation"
                               inputIsSecondary="true"
                               inputTooltipPlacement="right"
-                              (outputClicked)="deleteCorrelations()">
+                              (outputClicked)="deleteAllCorrelations()">
                 </terra-button>
             </terra-base-toolbar>
         </div>
     </div>
     <div class="row">
-        <terra-overlay #viewChildOverlayWithoutButtons
-                       inputOverlayTitle="Showcase overlay with no buttons"
-                       [inputIsLarge]="true">
-            {% set count = 0 %}
-            <div *ngFor="let attribute of _selectableVendorCategoriesList;">
-                {% set count = count + 1 %}
+        <terra-overlay #viewChildOverlayWithPrimaryButton
+                       inputOverlayTitle="Attribute Mapping"
+                       [inputIsLarge]="true"
+                       [inputPrimaryButtonInterface]="_primaryButtonInterface">
+            <div *ngFor="let attribute of _selectableVendorCategoriesList">
                 <div class="row">
                     <div class="col-xs-5 col-md-5 col-lg-5" style="text-align: center">
                         {{ attribute.value }}
                     </div>
                     <div class="col-xs-5 col-md-5 col-lg-5">
-                        <terra-select-box
-                                inputName="'attributes'.{{count}}"
-                                [inputListBoxValues]="_selectableOptionTypesList"
-                                [(ngModel)]="_pickedValue">
-                        </terra-select-box>
+                        <select [(ngModel)] = "attribute.caption" (change)="selectedPlentyAttribute($event)">
+                            <option *ngFor="let plentyAttributes of _selectableOptionTypesList" [value] ="plentyAttributes.value">
+                                {{plentyAttributes.value}}
+                            </option>
+                        </select>
                     </div>
                     <div class="col-xs-2 col-md-2 col-lg-2">
                         <terra-button inputIcon="icon-switch_editor"
                                       inputTooltipText="map"
                                       inputTooltipPlacement="right"
-                                      (outputClicked)="attributeMap(_pickedValue, attribute.value)">
+                                      (outputClicked)="vendorAttributeMapping(selectedValue, attribute.value)">
                         </terra-button>
                     </div>
                 </div>
@@ -47,15 +46,34 @@
         </terra-overlay>
     </div>
     <div class="row">
+        <terra-overlay #viewChildOverlayAttribute
+                       inputOverlayTitle="Create New Attribute"
+                       [inputIsLarge]="true">
+            <terra-portlet inputPortletHeader="input uses ngModel">
+                <terra-text-input inputName="attributeName"
+                                  [(ngModel)]="_attributename">
+                </terra-text-input>
+                <terra-button inputCaption="Create Attribute"
+                              (outputClicked)="createPlentyMarketAttribute(_attributename)">
+                </terra-button>
+            </terra-portlet>
+        </terra-overlay>
+    </div>
+    <div class="row">
         <div class="col-xs-12 col-md-6 col-lg-6">
             <div *ngFor="let correlation of categoryMapping;">
                 <terra-info-box>
                     <span body>
-                        {{ correlation.settings[0].vendorCategory[0].name }}
+                        {{ correlation.settings[0].vendorCategory[0].name }} -->
                     </span><br><br>
                     <span body>
                         {{ correlation.settings[0].category[0].details[0].name }}
                     </span>
+                    <div buttons>
+                        <terra-button [inputIcon] = "'icon-delete'"
+                                      (outputClicked)="deleteCorrelation(correlation.id)">
+                        </terra-button>
+                    </div>
                 </terra-info-box>
             </div>
         </div>
