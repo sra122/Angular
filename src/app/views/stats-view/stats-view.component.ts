@@ -113,6 +113,7 @@ export class StatsViewComponent extends Translation implements OnInit
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
                 public _vendorCategories:VendorCategoriesService,
+                private _loadingConfig:LoadingConfig,
                 viewContainerRef:ViewContainerRef)
     {
         super(translation);
@@ -225,7 +226,6 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private getVendorChildCategories(category:CategoriesInterface):TerraLeafInterface
     {
-        console.log(category);
         let vendorLeafData:TerraLeafInterface = {
             caption: category.name,
             id: category.id,
@@ -258,6 +258,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private getCorrelation():any
     {
+        this._loadingConfig.callLoadingEvent(true);
         this._statsDataService.getRestCallData('markets/panda-black/correlations').subscribe((response:any) =>
         {
             for(let category of response.entries)
@@ -309,6 +310,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
         this.vendorCategoryArray.splice(0, 1);
         this.categoryArray.splice(0, 1);
+        this.ngOnInit();
     }
 
     private attributeMapping(vendorCategoryData:any):void
@@ -373,6 +375,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private deleteAllCorrelations():void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlations');
+        this.ngOnInit();
     }
 
     private createPlentyMarketAttribute(attributeName:string):any
@@ -383,7 +386,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private deleteCorrelation(correlationId:number):void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlation/', correlationId);
-        this._isLoading = true;
+        this.ngOnInit();
     }
 
     private selectedPlentyAttribute(event:any):any {

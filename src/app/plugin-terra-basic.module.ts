@@ -14,6 +14,7 @@ import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
 import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
+import { LoadingConfig } from './core/config/loading.config';
 
 @NgModule({
     imports:      [
@@ -30,6 +31,7 @@ import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorc
         ItoolsComponent
     ],
     providers:    [
+        LoadingConfig,
         LocalizationConfig,
         {
             provide:    APP_INITIALIZER,
