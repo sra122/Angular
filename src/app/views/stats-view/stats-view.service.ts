@@ -56,6 +56,25 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+
+    public editCorrelation(taxonomyCorrelations:Array<any>, id:number = null):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/edit-correlations';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    correlations: taxonomyCorrelations,
+                    id: id
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
     public postAttributeData(attributeName:string):any
     {
         this.setAuthorization();

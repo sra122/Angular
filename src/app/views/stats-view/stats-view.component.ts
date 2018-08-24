@@ -109,6 +109,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private attributeMappingRecord:Array<any>;
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private selectedValue:string = '';
+    private appendEditCorrelation:number = 0;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -133,6 +134,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._selectableVendorCategoriesList = [];
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
+        this.appendEditCorrelation = 0;
     }
 
     public ngOnInit():void
@@ -258,7 +260,6 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private getCorrelation():any
     {
-        this._loadingConfig.callLoadingEvent(true);
         this._statsDataService.getRestCallData('markets/panda-black/correlations').subscribe((response:any) =>
         {
             for(let category of response.entries)
@@ -310,7 +311,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
         this.vendorCategoryArray.splice(0, 1);
         this.categoryArray.splice(0, 1);
-        this.ngOnInit();
+        this.categoryExtraction();
     }
 
     private attributeMapping(vendorCategoryData:any):void
@@ -375,7 +376,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private deleteAllCorrelations():void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlations');
-        this.ngOnInit();
+        this.categoryExtraction();
     }
 
     private createPlentyMarketAttribute(attributeName:string):any
@@ -386,10 +387,23 @@ export class StatsViewComponent extends Translation implements OnInit
     private deleteCorrelation(correlationId:number):void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlation/', correlationId);
-        this.ngOnInit();
+        this.categoryExtraction();
     }
 
     private selectedPlentyAttribute(event:any):any {
         this.selectedValue = event.target.value;
+    }
+
+    private editCorrelation(id:number):void
+    {
+        this.categoryExtraction();
+        this.appendEditCorrelation = id;
+        if(isNullOrUndefined(this.attributeMappingRecord)) {
+        } else {
+            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, id);
+            this.vendorCategoryArray.splice(0, 1);
+            this.categoryArray.splice(0, 1);
+        }
     }
 }

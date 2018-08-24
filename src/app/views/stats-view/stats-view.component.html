@@ -70,11 +70,32 @@
                         {{ correlation.settings[0].category[0].details[0].name }}
                     </span>
                     <div buttons>
-                        <terra-button [inputIcon] = "'icon-delete'"
+                        <terra-button inputIcon="icon-category_edit"
+                                      inputIsPrimary="true"
+                                      inputTooltipText="Edit Category Mapping"
+                                      (outputClicked)="editCorrelation(correlation.id)">
+                        </terra-button>
+                        <terra-button inputIcon = "icon-delete"
+                                      inputIsSecondary = "true"
+                                      inputTooltipText="Delete Category Mapping"
                                       (outputClicked)="deleteCorrelation(correlation.id)">
                         </terra-button>
                     </div>
                 </terra-info-box>
+                <div *ngIf="appendEditCorrelation === correlation.id;">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            <terra-portlet>
+                                <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
+                            </terra-portlet>
+                        </div>
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            <terra-portlet>
+                                <terra-tree [inputLeafList]="categories"></terra-tree>
+                            </terra-portlet>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
