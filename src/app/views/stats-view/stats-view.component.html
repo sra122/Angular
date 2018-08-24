@@ -73,7 +73,7 @@
                         <terra-button inputIcon="icon-category_edit"
                                       inputIsPrimary="true"
                                       inputTooltipText="Edit Category Mapping"
-                                      (outputClicked)="editCorrelation(correlation.id)">
+                                      (outputClicked)="editCorrelationInfo(correlation.id)">
                         </terra-button>
                         <terra-button inputIcon = "icon-delete"
                                       inputIsSecondary = "true"
@@ -99,7 +99,7 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row" *ngIf="appendEditCorrelation === 0;">
         <div class="col-xs-12 col-md-6 col-lg-6">
             <terra-portlet>
                 <terra-tree [inputLeafList]="vendorCategories"></terra-tree>

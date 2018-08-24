@@ -1,2 +1,6 @@
-<itools></itools>
-<stats-view></stats-view>
+<div *ngIf="action == 'itools'" class="terra-view">
+    <itools></itools>
+</div>
+<div *ngIf="action == 'stats-view'" class="terra-view">
+    <stats-view></stats-view>
+</div>

@@ -156,6 +156,7 @@ export class StatsViewComponent extends Translation implements OnInit
     public categoryExtraction():void
     {
         this.categoryMapping = [];
+        this.appendEditCorrelation = 0;
         this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
@@ -307,11 +308,13 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelationMapping():void
     {
-        this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
-        this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
-        this.vendorCategoryArray.splice(0, 1);
-        this.categoryArray.splice(0, 1);
-        this.categoryExtraction();
+        if(this.appendEditCorrelation === 0) {
+            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+            this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
+            this.vendorCategoryArray.splice(0, 1);
+            this.categoryArray.splice(0, 1);
+            this.categoryExtraction();
+        }
     }
 
     private attributeMapping(vendorCategoryData:any):void
@@ -358,6 +361,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
         if(response === true) {
             this.createCorrelationMapping();
+            this.editCorrelationData(this.appendEditCorrelation);
         }
 
     }
@@ -382,6 +386,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private createPlentyMarketAttribute(attributeName:string):any
     {
         this._statsDataService.postAttributeData(attributeName);
+        this.categoryExtraction();
     }
 
     private deleteCorrelation(correlationId:number):void
@@ -394,16 +399,24 @@ export class StatsViewComponent extends Translation implements OnInit
         this.selectedValue = event.target.value;
     }
 
-    private editCorrelation(id:number):void
+    private editCorrelationInfo(id:number):void
     {
         this.categoryExtraction();
         this.appendEditCorrelation = id;
-        if(isNullOrUndefined(this.attributeMappingRecord)) {
+    }
+
+    private editCorrelationData(id:number):void
+    {
+        console.log('entering into function');
+        if(this.appendEditCorrelation === 0) {
+            console.log('creating item, it is not editing');
         } else {
+            console.log('condition satisfied');
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
             this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, id);
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
         }
+        this.categoryExtraction();
     }
 }
