@@ -11,8 +11,28 @@ import {
 })
 export class PluginTerraBasicComponent extends Translation
 {
+    private action:any = this.getUrlVars()['action'];
+
     public constructor(public translation:TranslationService)
     {
         super(translation);
+    }
+
+    public reload():void
+    {
+        location.reload();
+    }
+
+    private getUrlVars():any
+    {
+        let vars:any = {};
+
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(substring:string, ...args:any[]):string
+        {
+            vars[args[0]] = args[1];
+            return;
+        });
+
+        return vars;
     }
 }

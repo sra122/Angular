@@ -6,8 +6,7 @@ import { StatsDataService } from './stats-view.service';
 import {
     TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraOverlayButtonInterface,
     TerraOverlayComponent,
-    TerraSelectBoxValueInterface, TerraSimpleTableCellInterface, TerraSimpleTableHeaderCellInterface,
-    TerraSimpleTableRowInterface
+    TerraSelectBoxValueInterface
 } from '@plentymarkets/terra-components';
 import { Translation, TranslationService } from 'angular-l10n';
 import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
@@ -21,6 +20,8 @@ interface CategoriesInterface
     level?:number;
     name?:any;
     parentId?:number;
+    parentCategoryId:any;
+    child:Array<CategoriesInterface>;
     children?:Array<CategoriesInterface>;
     details?:Array<CategoriesInterface>;
     subLeafList?:Array<CategoryInterface>;
@@ -77,6 +78,29 @@ interface VendorCategoryCorrelationInterface
     vendorCategory?:any;
 }
 
+interface VendorAttributeInterface
+{
+    value:any;
+    caption:string | number;
+    icon?:string;
+    position?:number;
+    pickedValue?:any;
+}
+
+interface AttributeMappingInterface
+{
+    id:number;
+    marketplaceId:string;
+    type:string;
+    settings:AttributeMappingInfoInterface;
+}
+
+interface AttributeMappingInfoInterface
+{
+    vendorAttribute:string;
+    plentyAttribute:string;
+}
+
 
 @Component({
     selector: 'stats-view',
@@ -97,7 +121,7 @@ export class StatsViewComponent extends Translation implements OnInit
     @ViewChild('viewChildOverlayAttribute') public viewChildOverlayAttribute:TerraOverlayComponent;
     private _primaryButtonInterface:TerraOverlayButtonInterface;
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
-    private _selectableVendorCategoriesList:Array<TerraSelectBoxValueInterface> = [];
+    private _selectableVendorCategoriesList:Array<VendorAttributeInterface> = [];
 
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
@@ -109,7 +133,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private attributeMappingRecord:Array<any>;
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private selectedValue:string = '';
-    private appendEditCorrelation:number = 0;
+    private editCorrelationId:number = 0;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -134,7 +158,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._selectableVendorCategoriesList = [];
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
-        this.appendEditCorrelation = 0;
+        this.editCorrelationId = 0;
     }
 
     public ngOnInit():void
@@ -156,7 +180,6 @@ export class StatsViewComponent extends Translation implements OnInit
     public categoryExtraction():void
     {
         this.categoryMapping = [];
-        this.appendEditCorrelation = 0;
         this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
@@ -167,9 +190,11 @@ export class StatsViewComponent extends Translation implements OnInit
         this.categories = [];
         this._statsDataService.getRestCallData('markets/panda-black/parent-categories').subscribe((response:any) =>
         {
-            for(let category of response.categoryDetails)
+            for(let category of response)
             {
-                this.categories.push(this.getChildCategories(category));
+                if(!isNullOrUndefined(category.child)) {
+                    this.categories.push(this.getChildCategories(category));
+                }
             }
         });
     }
@@ -182,7 +207,7 @@ export class StatsViewComponent extends Translation implements OnInit
         });
     }
 
-    private getChildCategories(category:CategoriesInterface):TerraLeafInterface
+    private getChildCategories(category:CategoriesInterface):any
     {
         this.vendorCategoriesCorrelation = {};
 
@@ -193,24 +218,23 @@ export class StatsViewComponent extends Translation implements OnInit
             subLeafList:null,
             isOpen: false,
             clickFunction:  ():void =>
-                            {
-                                this.categoryArray = [];
-                                this.categoryArray.push(category);
-                                this.getParentCategory(category.id);
-                                this.createCorrelation();
-                            }
+            {
+                this.categoryArray = [];
+                this.categoryArray.push(category);
+                this.getParentCategory(category.id);
+                this.createCorrelation();
+            }
         };
 
-        if(!isNullOrUndefined(category.children))
+        if(!isNullOrUndefined(category.child))
         {
             leafData.icon = 'icon-folder';
             leafData.subLeafList = [];
-            category.children.forEach((child:any) =>
+            category.child.forEach((child:any) =>
             {
                 leafData.subLeafList.push(this.getChildCategories(child));
             });
         }
-
         return leafData;
     }
 
@@ -308,11 +332,18 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelationMapping():void
     {
-        if(this.appendEditCorrelation === 0) {
+        if(this.editCorrelationId === 0) {
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
             this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
+            this.categoryExtraction();
+        } else {
+            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId);
+            this.vendorCategoryArray.splice(0, 1);
+            this.categoryArray.splice(0, 1);
+            this.editCorrelationId = 0;
             this.categoryExtraction();
         }
     }
@@ -361,9 +392,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
         if(response === true) {
             this.createCorrelationMapping();
-            this.editCorrelationData(this.appendEditCorrelation);
         }
-
     }
 
     private vendorAttributeMapping(plentyAttribute:string, vendorAttribute:string):any
@@ -371,8 +400,10 @@ export class StatsViewComponent extends Translation implements OnInit
         if(plentyAttribute === 'create_attribute') {
             this.openOverlayForAttributeCreation();
         } else {
-            this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((response:any) => {
-                this.attributeMappingRecord.push(response);
+            this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((attributeId:any) => {
+                this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
+                    this.attributeMappingRecord.push(attributeMappingInfo);
+                });
             });
         }
     }
@@ -401,22 +432,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private editCorrelationInfo(id:number):void
     {
-        this.categoryExtraction();
-        this.appendEditCorrelation = id;
-    }
-
-    private editCorrelationData(id:number):void
-    {
-        console.log('entering into function');
-        if(this.appendEditCorrelation === 0) {
-            console.log('creating item, it is not editing');
-        } else {
-            console.log('condition satisfied');
-            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
-            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, id);
-            this.vendorCategoryArray.splice(0, 1);
-            this.categoryArray.splice(0, 1);
-        }
+        this.editCorrelationId = id;
         this.categoryExtraction();
     }
 }

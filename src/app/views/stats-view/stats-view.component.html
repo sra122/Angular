@@ -28,17 +28,17 @@
                         {{ attribute.value }}
                     </div>
                     <div class="col-xs-5 col-md-5 col-lg-5">
-                        <select [(ngModel)] = "attribute.caption" (change)="selectedPlentyAttribute($event)">
-                            <option *ngFor="let plentyAttributes of _selectableOptionTypesList" [value] ="plentyAttributes.value">
-                                {{plentyAttributes.value}}
-                            </option>
-                        </select>
+                        <terra-select-box
+                            inputName="attributes"
+                            [inputListBoxValues]="_selectableOptionTypesList"
+                            [(ngModel)]="attribute.pickedValue">
+                        </terra-select-box>
                     </div>
                     <div class="col-xs-2 col-md-2 col-lg-2">
                         <terra-button inputIcon="icon-switch_editor"
                                       inputTooltipText="map"
                                       inputTooltipPlacement="right"
-                                      (outputClicked)="vendorAttributeMapping(selectedValue, attribute.value)">
+                                      (outputClicked)="vendorAttributeMapping(attribute.pickedValue, attribute.value)">
                         </terra-button>
                     </div>
                 </div>
@@ -64,11 +64,19 @@
             <div *ngFor="let correlation of categoryMapping;">
                 <terra-info-box>
                     <span body>
-                        {{ correlation.settings[0].vendorCategory[0].name }} -->
-                    </span><br><br>
-                    <span body>
-                        {{ correlation.settings[0].category[0].details[0].name }}
+                        Jd category<br>
+                        <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
+                    <br><br>
+                        PlentyMarket category<br>
+                        <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
+                        <br><br><br><br>
+                        Attribute Mapping <br>
+                        <span body *ngFor="let attribute of correlation.settings[1]">
+                            {{ attribute.settings.vendorAttribute }} -->
+                            {{ attribute.settings.plentyAttribute }}<br>
+                        </span>
                     </span>
+
                     <div buttons>
                         <terra-button inputIcon="icon-category_edit"
                                       inputIsPrimary="true"
@@ -82,7 +90,7 @@
                         </terra-button>
                     </div>
                 </terra-info-box>
-                <div *ngIf="appendEditCorrelation === correlation.id;">
+                <div *ngIf="editCorrelationId === correlation.id;">
                     <div class="row">
                         <div class="col-xs-12 col-md-6 col-lg-6">
                             <terra-portlet>
@@ -99,7 +107,7 @@
             </div>
         </div>
     </div>
-    <div class="row" *ngIf="appendEditCorrelation === 0;">
+    <div class="row" *ngIf="editCorrelationId === 0;">
         <div class="col-xs-12 col-md-6 col-lg-6">
             <terra-portlet>
                 <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
