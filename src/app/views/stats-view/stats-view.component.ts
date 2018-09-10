@@ -134,6 +134,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private selectedValue:string = '';
     private editCorrelationId:number = 0;
+    private editCorrelation:boolean;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -159,6 +160,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
         this.editCorrelationId = 0;
+        this.editCorrelation = false;
     }
 
     public ngOnInit():void
@@ -180,9 +182,13 @@ export class StatsViewComponent extends Translation implements OnInit
     public categoryExtraction():void
     {
         this.categoryMapping = [];
+        this.attributeMappingRecord = [];
         this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
+        if(!this.editCorrelation) {
+            this.editCorrelationId = 0;
+        }
     }
 
     private getParentCategories():void
@@ -217,6 +223,7 @@ export class StatsViewComponent extends Translation implements OnInit
             icon:null,
             subLeafList:null,
             isOpen: false,
+            isActive: false,
             clickFunction:  ():void =>
             {
                 this.categoryArray = [];
@@ -258,6 +265,7 @@ export class StatsViewComponent extends Translation implements OnInit
             id: category.id,
             icon:null,
             subLeafList:null,
+            isActive: false,
             clickFunction: ():void =>
                             {
                                 this.vendorCategoryArray = [];
@@ -325,6 +333,12 @@ export class StatsViewComponent extends Translation implements OnInit
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
                    this.openOverlayForAttributeMapping();
                    this.attributeMapping(this.vendorCategoryArray[0]);
+               } else {
+                   this.alert.addAlert({
+                       msg:              'This Category Mapping is already existed',
+                       type:             'warning',
+                       dismissOnTimeout: 5000
+                   });
                }
            }
         }
@@ -367,11 +381,6 @@ export class StatsViewComponent extends Translation implements OnInit
                     caption: attribute.backendName
                 });
             }
-
-            this._selectableOptionTypesList.push({
-               value: 'create_attribute',
-               caption: 'Create Attribute'
-            });
         });
 
         this._primaryButtonInterface = {
@@ -387,7 +396,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this.alert.addAlert({
             msg:              'Mapping is created',
             type:             'success',
-            dismissOnTimeout: 0
+            dismissOnTimeout: 5000
         });
 
         if(response === true) {
@@ -397,15 +406,16 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private vendorAttributeMapping(plentyAttribute:string, vendorAttribute:string):any
     {
-        if(plentyAttribute === 'create_attribute') {
-            this.openOverlayForAttributeCreation();
-        } else {
-            this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((attributeId:any) => {
-                this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
-                    this.attributeMappingRecord.push(attributeMappingInfo);
+        this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((attributeId:any) => {
+            this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
+                this.attributeMappingRecord.push(attributeMappingInfo);
+                this.alert.addAlert({
+                    msg:              'Attribute Mapping is created',
+                    type:             'success',
+                    dismissOnTimeout: 5000
                 });
             });
-        }
+        });
     }
 
     private deleteAllCorrelations():void
@@ -432,6 +442,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private editCorrelationInfo(id:number):void
     {
+        this.editCorrelation = true;
         this.editCorrelationId = id;
         this.categoryExtraction();
     }

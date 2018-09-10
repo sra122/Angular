@@ -14,6 +14,9 @@
                               inputTooltipPlacement="right"
                               (outputClicked)="deleteAllCorrelations()">
                 </terra-button>
+                <terra-button inputCaption="Create New Attribute"
+                              (outputClicked)="openOverlayForAttributeCreation()">
+                </terra-button>
             </terra-base-toolbar>
         </div>
     </div>
@@ -60,22 +63,25 @@
         </terra-overlay>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-md-6 col-lg-6">
+        <div class="col-xs-12 col-md-12 col-lg-12">
             <div *ngFor="let correlation of categoryMapping;">
                 <terra-info-box>
-                    <span body>
-                        Jd category<br>
-                        <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
-                    <br><br>
-                        PlentyMarket category<br>
-                        <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
-                        <br><br><br><br>
-                        Attribute Mapping <br>
-                        <span body *ngFor="let attribute of correlation.settings[1]">
-                            {{ attribute.settings.vendorAttribute }} -->
-                            {{ attribute.settings.plentyAttribute }}<br>
-                        </span>
-                    </span>
+                    <div body class="row">
+                        <div class="col-xs-12 col-md-6 col-lg-6 category-mapping">
+                            Jd category<br>
+                            <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
+                            <br><br>
+                            PlentyMarket category<br>
+                            <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
+                        </div>
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            Attribute Mapping <br>
+                            <div *ngFor="let attribute of correlation.settings[1]">
+                                <b>{{ attribute.settings.vendorAttribute }}</b> -->
+                                <b>{{ attribute.settings.plentyAttribute }}</b><br>
+                            </div>
+                        </div>
+                    </div>
 
                     <div buttons>
                         <terra-button inputIcon="icon-category_edit"
