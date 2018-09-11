@@ -158,6 +158,34 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+
+    public postPbCallData(restRoute:string):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+        let url:string = process.env.PB_API_URL +  restRoute;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
+    public postPbSession():Observable<void>
+    {
+        let url:string = this.url + 'markets/panda-black/session';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
     private setHeader():void
     {
         if(!isNullOrUndefined(this.bearer))

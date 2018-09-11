@@ -45,25 +45,30 @@ export class ItoolsComponent extends Translation implements OnInit
         this._isLoading = true;
 
         this._statsDataService.getRestCallData('markets/panda-black/login-url').subscribe(
-            (response:any) =>
+            (plentyResponse:any) =>
             {
-                let popup:any = window.open(
-                    response.loginUrl,
-                    'Panda Black',
-                    'toolbar=no, location=#, directories=no, status=no, ' +
-                    'menubar=no, scrollbars=yes, resizable=no, copyhistory=no, ' +
-                    'width=600, height=600, top=0, left=50'
-                );
-
-                let pollTimer:any = window.setInterval(() =>
-                {
-                    if(popup.closed !== false)
+                this._statsDataService.postPbCallData('/oauth2/authorizeSession').subscribe(
+                    (response:any) =>
                     {
-                        window.clearInterval(pollTimer);
-
-                        this._isLoading = false;
+                        this._statsDataService.postPbSession().subscribe(
+                            (sessionResponse:any) =>
+                            {
+                                console.log(sessionResponse);
+                                // todo: save the session timestamp in system
+                                let popup:any = window.open(
+                                    process.env.PB_API_URL + '/oauth2/authorize?app_id=' +
+                                    process.env.PB_APP_ID + '&redirect=' +
+                                    plentyResponse.loginUrl
+                                    + '&session_id=' + response.Response.session_id,
+                                    'Panda Black',
+                                    'toolbar=no, location=#, directories=no, status=no, ' +
+                                    'menubar=no, scrollbars=yes, resizable=no, copyhistory=no, ' +
+                                    'width=600, height=600, top=0, left=50'
+                                );
+                            }
+                        );
                     }
-                }, 200);
+                );
             }
         );
     }

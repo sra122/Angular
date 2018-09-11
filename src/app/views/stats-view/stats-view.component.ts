@@ -134,7 +134,6 @@ export class StatsViewComponent extends Translation implements OnInit
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private selectedValue:string = '';
     private editCorrelationId:number = 0;
-    private editCorrelation:boolean;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -160,7 +159,6 @@ export class StatsViewComponent extends Translation implements OnInit
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
         this.editCorrelationId = 0;
-        this.editCorrelation = false;
     }
 
     public ngOnInit():void
@@ -186,9 +184,9 @@ export class StatsViewComponent extends Translation implements OnInit
         this.getParentCategories();
         this.getVendorCategories();
         this.getCorrelation();
-        if(!this.editCorrelation) {
-            this.editCorrelationId = 0;
-        }
+        this.editCorrelationId = 0;
+        this.vendorCategoryArray = [];
+        this.categoryArray = [];
     }
 
     private getParentCategories():void
@@ -205,14 +203,6 @@ export class StatsViewComponent extends Translation implements OnInit
         });
     }
 
-    private getParentCategory(id:number):void
-    {
-        this.category = {};
-        this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + id).subscribe((response:any) =>
-        {
-        });
-    }
-
     private getChildCategories(category:CategoriesInterface):any
     {
         this.vendorCategoriesCorrelation = {};
@@ -226,10 +216,12 @@ export class StatsViewComponent extends Translation implements OnInit
             isActive: false,
             clickFunction:  ():void =>
             {
-                this.categoryArray = [];
-                this.categoryArray.push(category);
-                this.getParentCategory(category.id);
-                this.createCorrelation();
+                this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + category.id).subscribe((response:any) =>
+                {
+                    this.categoryArray = [];
+                    this.categoryArray.push(response);
+                    this.createCorrelation();
+                });
             }
         };
 
@@ -321,7 +313,7 @@ export class StatsViewComponent extends Translation implements OnInit
                       count++;
                    }
                }.bind(this));
-               if(count <= 0)
+               if(count <= 0 || this.editCorrelationId !== 0)
                {
                    this.vendorCategoriesCorrelation = {
                        category: this.categoryArray,
@@ -442,8 +434,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private editCorrelationInfo(id:number):void
     {
-        this.editCorrelation = true;
-        this.editCorrelationId = id;
         this.categoryExtraction();
+        this.editCorrelationId = id;
     }
 }
