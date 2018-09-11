@@ -56,6 +56,20 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+    public postPbCallData(restRoute:string):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+        let url = process.env.PB_API_URL +  restRoute;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
     public getCorrelationData(id:number = null):any
     {
         this.setAuthorization();
