@@ -24,7 +24,7 @@ export class StatsDataService extends TerraBaseService
         }
     }
 
-    public getRestCallData(restRoute:string):Observable <Array<any>>
+    public getRestCallData(restRoute:string):any
     {
         this.setAuthorization();
         this.setHeader();
@@ -39,7 +39,7 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public postRestCallData(taxonomyCorrelations:Array<any>):Observable<void>
+    public postRestCallData(taxonomyCorrelations:Array<any>):any
     {
         this.setAuthorization();
         this.setHeader();
@@ -86,7 +86,7 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public editCorrelation(taxonomyCorrelations:Array<any>, id:number = null):Observable<void>
+    public editCorrelation(taxonomyCorrelations:Array<any>, id:number = null):any
     {
         this.setAuthorization();
         this.setHeader();
@@ -104,7 +104,7 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public postAttributeData(attributeName:string):any
+    public postAttributeData(attributeName:string, attributeValue:string):any
     {
         this.setAuthorization();
         this.setHeader();
@@ -114,7 +114,8 @@ export class StatsDataService extends TerraBaseService
         return this.mapRequest(
             this.http.post(url,
                 {
-                    new_attribute: attributeName
+                    new_attribute: attributeName,
+                    attribute_values: attributeValue
                 }, {
                     headers: this.headers
                 })
@@ -139,7 +140,7 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public deleteRestCallData(restRoute:string, id:number = null):Observable<void>
+    public deleteRestCallData(restRoute:string, id:number = null):any
     {
         this.setAuthorization();
         this.setHeader();
@@ -159,7 +160,7 @@ export class StatsDataService extends TerraBaseService
     }
 
 
-    public postPbCallData(restRoute:string):Observable<void>
+    public postPbCallData(restRoute:string):any
     {
         this.headers.set('APP-ID', process.env.PB_APP_ID);
         let url:string = process.env.PB_API_URL +  restRoute;
@@ -173,7 +174,7 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public postPbSession():Observable<void>
+    public postPbSession():Observable<any>
     {
         let url:string = this.url + 'markets/panda-black/session';
 

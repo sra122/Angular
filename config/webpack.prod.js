@@ -22,7 +22,7 @@ module.exports = function (env) {
         devtool: 'source-map',
 
         output: {
-            path: helpers.root('dist'),
+            path: helpers.root('../HelloWorld/ui'),
             filename: '[name].js',
             chunkFilename: '[id].[hash].chunk.js'
         },

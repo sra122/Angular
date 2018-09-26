@@ -15,7 +15,7 @@ export class PluginTerraBasicComponent extends Translation
 
     public constructor(public translation:TranslationService)
     {
-        super(translation);
+        super();
     }
 
     public reload():void

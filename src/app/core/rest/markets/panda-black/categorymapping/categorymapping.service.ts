@@ -4,7 +4,6 @@ import {
     TerraLoadingSpinnerService,
     TerraBaseService
 } from '@plentymarkets/terra-components';
-import { Observable } from 'rxjs';
 
 import { isNullOrUndefined } from 'util';
 
@@ -25,7 +24,7 @@ export class CategoryMappingService extends TerraBaseService
         }
     }
 
-    public getCorrelations():Observable<Array<any>>
+    public getCorrelations():any
     {
         this.setAuthorization();
         this.setHeader();

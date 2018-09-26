@@ -6,9 +6,9 @@ import {
 import { TerraOverlayComponent } from '@plentymarkets/terra-components';
 import { TerraOverlayButtonInterface } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
-import { TerraSelectBoxValueInterface} from '@plentymarkets/terra-components';
-import {StatsDataService} from "../stats-view/stats-view.service";
-import {Translation, TranslationService} from "angular-l10n";
+import { TerraSelectBoxValueInterface } from '@plentymarkets/terra-components';
+import { StatsDataService } from '../stats-view/stats-view.service';
+import { Translation, TranslationService } from 'angular-l10n';
 
 @Component({
     selector: 'itools',
@@ -20,6 +20,7 @@ export class ItoolsComponent extends Translation implements OnInit
     @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
     @ViewChild('viewChildOverlayStatic') public viewChildOverlayStatic:TerraOverlayComponent;
 
+    public _expireTime:any;
     private _isLoading:boolean;
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
@@ -27,7 +28,7 @@ export class ItoolsComponent extends Translation implements OnInit
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService)
     {
-        super(translation)
+        super();
         this._isLoading = false;
 
         this._alert = TerraAlertComponent.getInstance();
@@ -37,6 +38,7 @@ export class ItoolsComponent extends Translation implements OnInit
 
     public ngOnInit():void
     {
+        this.getTokenExpireTime();
     }
 
     private getLoginUrl():void
@@ -69,6 +71,17 @@ export class ItoolsComponent extends Translation implements OnInit
                         );
                     }
                 );
+            }
+        );
+    }
+
+    private getTokenExpireTime():void
+    {
+        this._isLoading = true;
+
+        this._statsDataService.getRestCallData('markets/panda-black/expire-time').subscribe(
+            (response:any) => {
+                this._expireTime = new Date(response * 1000);
             }
         );
     }

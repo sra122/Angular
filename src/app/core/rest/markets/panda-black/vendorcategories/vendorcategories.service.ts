@@ -4,7 +4,6 @@ import {
     TerraLoadingSpinnerService,
     TerraBaseService
 } from '@plentymarkets/terra-components';
-import { Observable } from 'rxjs';
 import { TranslationService } from 'angular-l10n';
 import { VendorCategoriesInterface } from './data/vendor-categories.interface';
 import { isNullOrUndefined } from 'util';
@@ -27,7 +26,7 @@ export class VendorCategoriesService extends TerraBaseService
         }
     }
 
-    public saveCorrelations(taxonomyCorrelations:Array<any>):Observable<void>
+    public saveCorrelations(taxonomyCorrelations:Array<any>):any
     {
         console.log(taxonomyCorrelations);
         this.setAuthorization();

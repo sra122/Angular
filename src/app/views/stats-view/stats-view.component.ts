@@ -134,6 +134,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private selectedValue:string = '';
     private editCorrelationId:number = 0;
+    private vendorParentCategory:Array<any>;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -141,7 +142,7 @@ export class StatsViewComponent extends Translation implements OnInit
                 private _loadingConfig:LoadingConfig,
                 viewContainerRef:ViewContainerRef)
     {
-        super(translation);
+        super();
 
         this._isLoading = false;
 
@@ -187,6 +188,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this.editCorrelationId = 0;
         this.vendorCategoryArray = [];
         this.categoryArray = [];
+        this.vendorParentCategory = [];
     }
 
     private getParentCategories():void
@@ -338,6 +340,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelationMapping():void
     {
+        console.log(this.editCorrelationId);
         if(this.editCorrelationId === 0) {
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
             this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
@@ -396,9 +399,9 @@ export class StatsViewComponent extends Translation implements OnInit
         }
     }
 
-    private vendorAttributeMapping(plentyAttribute:string, vendorAttribute:string):any
+    private vendorAttributeMapping(vendorAttribute:string, plentyAttribute:string, ):any
     {
-        this._statsDataService.postAttributeMapping(plentyAttribute, vendorAttribute).subscribe((attributeId:any) => {
+        this._statsDataService.postAttributeMapping(vendorAttribute, plentyAttribute).subscribe((attributeId:any) => {
             this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
                 this.attributeMappingRecord.push(attributeMappingInfo);
                 this.alert.addAlert({
@@ -416,9 +419,17 @@ export class StatsViewComponent extends Translation implements OnInit
         this.categoryExtraction();
     }
 
-    private createPlentyMarketAttribute(attributeName:string):any
+    private createPlentyMarketAttribute(attributeName:string, attributeValue:string):any
     {
-        this._statsDataService.postAttributeData(attributeName);
+        this._statsDataService.postAttributeData(attributeName, attributeValue).subscribe((response:any) => {
+            if(!isNullOrUndefined(response)) {
+                this.alert.addAlert({
+                    msg:              'New Attribute is Created.',
+                    type:             'success',
+                    dismissOnTimeout: 5000
+                });
+            }
+        });
         this.categoryExtraction();
     }
 
@@ -436,5 +447,6 @@ export class StatsViewComponent extends Translation implements OnInit
     {
         this.categoryExtraction();
         this.editCorrelationId = id;
+        console.log(this.editCorrelationId);
     }
 }

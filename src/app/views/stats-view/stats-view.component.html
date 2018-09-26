@@ -41,7 +41,7 @@
                         <terra-button inputIcon="icon-switch_editor"
                                       inputTooltipText="map"
                                       inputTooltipPlacement="right"
-                                      (outputClicked)="vendorAttributeMapping(attribute.pickedValue, attribute.value)">
+                                      (outputClicked)="vendorAttributeMapping(attribute.value, attribute.pickedValue)">
                         </terra-button>
                     </div>
                 </div>
@@ -53,11 +53,15 @@
                        inputOverlayTitle="Create New Attribute"
                        [inputIsLarge]="true">
             <terra-portlet inputPortletHeader="input uses ngModel">
-                <terra-text-input inputName="attributeName"
+                <terra-text-input inputName="attributeName (Bsp. Farbe)"
                                   [(ngModel)]="_attributename">
                 </terra-text-input>
+                <terra-text-input inputName="attributeValues (Bsp. Rot, Schwarz, Grun)"
+                                  [(ngModel)]="_attributeValues">
+
+                </terra-text-input>
                 <terra-button inputCaption="Create Attribute"
-                              (outputClicked)="createPlentyMarketAttribute(_attributename)">
+                              (outputClicked)="createPlentyMarketAttribute(_attributename, _attributeValues)">
                 </terra-button>
             </terra-portlet>
         </terra-overlay>

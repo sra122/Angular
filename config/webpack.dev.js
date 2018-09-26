@@ -23,7 +23,7 @@ module.exports = function (options) {
         devtool: 'cheap-module-source-map',
 
         output: {
-            path: helpers.root('dist'),
+            path: helpers.root('../HelloWorld/ui'),
             filename: '[name].bundle.js',
             chunkFilename: '[id].chunk.js'
         },

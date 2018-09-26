@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
-import {
-    TerraLoadingSpinnerService,
-    TerraBaseService
-} from '@plentymarkets/terra-components';
+import { TerraLoadingSpinnerService, TerraBaseService } from '@plentymarkets/terra-components';
 import { Observable } from 'rxjs';
 import { TranslationService } from 'angular-l10n';
 import { CategoryInterface } from './data/categories.interface';

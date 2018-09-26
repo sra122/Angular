@@ -7,9 +7,10 @@ import { PluginTerraBasicComponent } from './plugin-terra-basic.component';
 import { StartComponent } from './views/start/start.component';
 import { TerraComponentsModule } from '@plentymarkets/terra-components/app/terra-components.module';
 import { HttpModule } from '@angular/http';
-import { TranslationModule } from 'angular-l10n';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { L10nConfig, TranslationModule } from 'angular-l10n';
 import { FormsModule } from '@angular/forms';
-import { LocalizationConfig } from './core/localization/terra-localization.config';
+import { l10nConfig } from './core/localization/terra-localization.config';
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
@@ -21,36 +22,36 @@ import { LoadingConfig } from './core/config/loading.config';
         BrowserModule,
         HttpModule,
         FormsModule,
-        TranslationModule.forRoot(),
+        HttpClientModule,
+        TranslationModule.forRoot(l10nConfig),
         TerraComponentsModule.forRoot()
     ],
     declarations: [
-        PluginTerraBasicComponent,
+        PluginTerraBasicModule,
         StartComponent,
         StatsViewComponent,
         ItoolsComponent
     ],
     providers:    [
         LoadingConfig,
-        LocalizationConfig,
         {
             provide:    APP_INITIALIZER,
             useFactory: initLocalization,
-            deps:       [LocalizationConfig],
+            deps:       [l10nConfig],
             multi:      true
         },
         StatsDataService,
         VendorCategoriesService
     ],
     bootstrap:    [
-        PluginTerraBasicComponent
+        PluginTerraBasicModule
     ]
 })
 export class PluginTerraBasicModule
 {
 }
 
-export function initLocalization(localizationConfig:LocalizationConfig):Function
+export function initLocalization(terraLocalizationConf:any):any
 {
-    return () => localizationConfig.load();
+    return () => terraLocalizationConf.load();
 }

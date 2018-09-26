@@ -1,71 +1,77 @@
-import { Injectable } from '@angular/core';
 import {
-    LocaleService,
-    TranslationService
+    L10nConfig,
+    ProviderType,
+    StorageStrategy
 } from 'angular-l10n';
 
-@Injectable()
-export class LocalizationConfig
+export const l10nConfig:L10nConfig = getL10nConfig();
+
+
+function getL10nConfig():L10nConfig
 {
-    constructor(public locale:LocaleService, public translation:TranslationService)
+    let langInLocalStorage:string = localStorage.getItem('plentymarkets_lang_');
+    let lang:string = null;
+
+    if(langInLocalStorage !== null)
     {
+        lang = langInLocalStorage;
+    }
+    else
+    {
+        lang = navigator.language.slice(0, 2).toLocaleLowerCase();
+
+        if(lang !== 'de' && lang !== 'en')
+        {
+            lang = 'en';
+        }
+
+        localStorage.setItem('plentymarkets_lang_', lang);
     }
 
-    load():Promise<any>
+    let prefix:string = null;
+    let terraComponentsLocalePrefix:string = null;
+
+    // Definitions for i18n
+    if(process.env.ENV === 'production')
     {
-        //Definitions for i18n
-        if(process.env.ENV === 'production')
-        {
-            let deploymentTerraHash = (<any>window).deploymentTerraHash;
-            this.translation
-                .addConfiguration()
-                .addProvider('assets/lang/locale_')
-                .addProvider('assets/lang/terra-components/locale-');
-        }
-        else
-        {
-            this.translation.addConfiguration()
-                .addProvider('src/app/assets/lang/locale_')
-                .addProvider('node_modules/@plentymarkets/terra-components/app/assets/lang/locale-');
-        }
-
-        this.locale.addConfiguration()
-            .addLanguages(['de',
-                           'en'])
-            .setCookieExpiration(30)
-            .defineDefaultLocale('en', 'EN');
-
-        let langInLocalStorage:string = localStorage.getItem('plentymarkets_lang_');
-
-        if(langInLocalStorage !== null)
-        {
-            this.locale.setCurrentLanguage(langInLocalStorage);
-        }
-        else
-        {
-            let lang = navigator.language.slice(0, 2).toLocaleLowerCase();
-
-            if(lang !== 'de' && lang !== 'en')
-            {
-                lang = 'en';
-            }
-
-            this.locale.setCurrentLanguage(lang);
-
-            localStorage.setItem('plentymarkets_lang_', lang);
-        }
-
-        let promise:Promise<any> = new Promise((resolve:any) =>
-        {
-            this.translation.translationChanged.subscribe(() =>
-            {
-                resolve(true);
-            });
-        });
-
-        this.locale.init();
-        this.translation.init();
-
-        return promise;
+        prefix = 'assets/lang/locale-';
+        terraComponentsLocalePrefix = 'assets/lang/terra-components/locale-';
     }
+    else
+    {
+        prefix = 'src/app/assets/lang/locale-';
+        terraComponentsLocalePrefix = 'node_modules/@plentymarkets/terra-components/app/assets/lang/locale-';
+    }
+
+    return {
+        locale:      {
+            languages: [
+                {
+                    code: 'en',
+                    dir:  'ltr'
+                },
+                {
+                    code: 'de',
+                    dir:  'ltr'
+                }
+            ],
+            language:  lang,
+            storage:   StorageStrategy.Cookie
+        },
+        translation: {
+            providers:            [
+                {
+                    type:   ProviderType.Static,
+                    prefix: prefix
+                },
+                {
+                    type:   ProviderType.Static,
+                    prefix: terraComponentsLocalePrefix
+                }
+            ],
+            caching:              true,
+            composedKeySeparator: '.',
+            i18nPlural:           false
+        }
+    };
 }
