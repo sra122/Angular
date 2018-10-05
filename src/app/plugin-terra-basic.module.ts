@@ -8,7 +8,7 @@ import { StartComponent } from './views/start/start.component';
 import { TerraComponentsModule } from '@plentymarkets/terra-components/app/terra-components.module';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { L10nConfig, TranslationModule } from 'angular-l10n';
+import { L10nLoader, TranslationModule } from 'angular-l10n';
 import { FormsModule } from '@angular/forms';
 import { l10nConfig } from './core/localization/terra-localization.config';
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
@@ -16,6 +16,7 @@ import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
 import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 import { LoadingConfig } from './core/config/loading.config';
+
 
 @NgModule({
     imports:      [
@@ -27,7 +28,7 @@ import { LoadingConfig } from './core/config/loading.config';
         TerraComponentsModule.forRoot()
     ],
     declarations: [
-        PluginTerraBasicModule,
+        PluginTerraBasicComponent,
         StartComponent,
         StatsViewComponent,
         ItoolsComponent
@@ -44,14 +45,20 @@ import { LoadingConfig } from './core/config/loading.config';
         VendorCategoriesService
     ],
     bootstrap:    [
-        PluginTerraBasicModule
+        PluginTerraBasicComponent
     ]
 })
+
 export class PluginTerraBasicModule
 {
+    constructor(public l10nLoader:L10nLoader)
+    {
+        this.l10nLoader.load();
+    }
 }
 
-export function initLocalization(terraLocalizationConf:any):any
+function initLocalization(l10nLoader:L10nLoader):Function
 {
-    return () => terraLocalizationConf.load();
+    return ():Promise<void> => l10nLoader.load();
 }
+
