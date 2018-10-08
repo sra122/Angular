@@ -51,8 +51,7 @@ import { LoadingConfig } from './core/config/loading.config';
 
 export class PluginTerraBasicModule
 {
-    constructor(public l10nLoader:L10nLoader)
-    {
+    constructor(public l10nLoader:L10nLoader) {
         this.l10nLoader.load();
     }
 }
