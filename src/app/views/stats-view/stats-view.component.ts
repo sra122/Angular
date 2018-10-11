@@ -343,7 +343,9 @@ export class StatsViewComponent extends Translation implements OnInit
         console.log(this.editCorrelationId);
         if(this.editCorrelationId === 0) {
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
-            this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray);
+            this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray).subscribe((response:any) => {
+                console.log(response);
+            });
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
             this.categoryExtraction();
@@ -399,7 +401,7 @@ export class StatsViewComponent extends Translation implements OnInit
         }
     }
 
-    private vendorAttributeMapping(vendorAttribute:string, plentyAttribute:string, ):any
+    private vendorAttributeMapping(vendorAttribute:string, plentyAttribute:string):any
     {
         this._statsDataService.postAttributeMapping(vendorAttribute, plentyAttribute).subscribe((attributeId:any) => {
             this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
@@ -435,8 +437,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private deleteCorrelation(correlationId:number):void
     {
-        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/', correlationId);
-        this.categoryExtraction();
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/delete/', correlationId);
     }
 
     private selectedPlentyAttribute(event:any):any {

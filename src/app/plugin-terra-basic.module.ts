@@ -38,7 +38,7 @@ import { LoadingConfig } from './core/config/loading.config';
         {
             provide:    APP_INITIALIZER,
             useFactory: initLocalization,
-            deps:       [l10nConfig],
+            deps:       [L10nLoader],
             multi:      true
         },
         StatsDataService,

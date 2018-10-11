@@ -1,5 +1,5 @@
 {
-	"name": "Etsy",
+	"name": "PandaBlack",
 	"version": "0.1.0",
 	"license": "MIT",
 	"angular-cli": {},
@@ -45,7 +45,7 @@
 		"rxjs": "5.5.10",
 		"ts-keycode-enum": "^1.0.4",
 		"zone.js": "0.8.26",
-		"@plentymarkets/terra-components": "^2.3.24"
+		"@plentymarkets/terra-components": "^2.3.26"
 	},
 	"devDependencies": {
 		"@types/jasmine": "^2.8.6",
