@@ -222,7 +222,9 @@ export class StatsViewComponent extends Translation implements OnInit
                 {
                     this.categoryArray = [];
                     this.categoryArray.push(response);
-                    this.createCorrelation();
+                    if(this.vendorCategoryArray.length !== 0 && this.categoryArray.length !== 0) {
+                        this.createCorrelation();
+                    }
                 });
             }
         };
@@ -264,7 +266,9 @@ export class StatsViewComponent extends Translation implements OnInit
                             {
                                 this.vendorCategoryArray = [];
                                 this.vendorCategoryArray.push(category);
-                                this.createCorrelation();
+                                if(this.categoryArray.length !== 0 && this.vendorCategoryArray.length !== 0) {
+                                    this.createCorrelation();
+                                }
                             }
         };
 
@@ -417,7 +421,9 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private deleteAllCorrelations():void
     {
-        this._statsDataService.deleteRestCallData('markets/panda-black/correlations');
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlations').subscribe((response:any) => {
+            console.log(response);
+        });
         this.categoryExtraction();
     }
 
@@ -437,7 +443,9 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private deleteCorrelation(correlationId:number):void
     {
-        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/delete/', correlationId);
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/delete/', correlationId).subscribe((response:any) => {
+            console.log(response);
+        });
     }
 
     private selectedPlentyAttribute(event:any):any {
