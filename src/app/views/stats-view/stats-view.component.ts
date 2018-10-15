@@ -126,6 +126,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
     private _isLoading:boolean;
+    private vendorOnlyParentCategorySelection:boolean;
     private vendorCategoryName:string;
     private categoryName:string;
     private categoryArray:Array<any>;
@@ -160,6 +161,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
         this.editCorrelationId = 0;
+        this.vendorOnlyParentCategorySelection = false;
     }
 
     public ngOnInit():void
@@ -222,6 +224,13 @@ export class StatsViewComponent extends Translation implements OnInit
                 {
                     this.categoryArray = [];
                     this.categoryArray.push(response);
+                    if(this.vendorOnlyParentCategorySelection) {
+                        this.alert.addAlert({
+                            msg:              'Please Select Child Category from JD Category Tree',
+                            type:             'warning',
+                            dismissOnTimeout: 5000
+                        });
+                    }
                     if(this.vendorCategoryArray.length !== 0 && this.categoryArray.length !== 0) {
                         this.createCorrelation();
                     }
@@ -265,7 +274,12 @@ export class StatsViewComponent extends Translation implements OnInit
             clickFunction: ():void =>
                             {
                                 this.vendorCategoryArray = [];
-                                this.vendorCategoryArray.push(category);
+                                if(category.id !== 1) {
+                                    this.vendorOnlyParentCategorySelection = false;
+                                    this.vendorCategoryArray.push(category);
+                                } else {
+                                    this.vendorOnlyParentCategorySelection = true;
+                                }
                                 if(this.categoryArray.length !== 0 && this.vendorCategoryArray.length !== 0) {
                                     this.createCorrelation();
                                 }
@@ -295,6 +309,7 @@ export class StatsViewComponent extends Translation implements OnInit
         {
             for(let category of response.entries)
             {
+                console.log(category);
                 this.categoryMapping.push(category);
             }
         });
@@ -344,18 +359,17 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createCorrelationMapping():void
     {
-        console.log(this.editCorrelationId);
         if(this.editCorrelationId === 0) {
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
             this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray).subscribe((response:any) => {
-                console.log(response);
             });
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
             this.categoryExtraction();
         } else {
             this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
-            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId);
+            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId).subscribe((response:any) => {
+            });
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
             this.editCorrelationId = 0;
@@ -421,31 +435,52 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private deleteAllCorrelations():void
     {
-        this._statsDataService.deleteRestCallData('markets/panda-black/correlations').subscribe((response:any) => {
-            console.log(response);
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlations/delete').subscribe((response:any) => {
         });
         this.categoryExtraction();
     }
 
     private createPlentyMarketAttribute(attributeName:string, attributeValue:string):any
     {
-        this._statsDataService.postAttributeData(attributeName, attributeValue).subscribe((response:any) => {
-            if(!isNullOrUndefined(response)) {
+        if(!isNullOrUndefined(attributeName) && !isNullOrUndefined(attributeValue)) {
+            let attributeArray:any = attributeValue.split(',');
+            this.alert.addAlert({
+                msg:              'New Attribute has ' + attributeArray.length + ' values.',
+                type:             'success',
+                dismissOnTimeout: 5000
+            });
+            if(attributeArray.length === 0) {
                 this.alert.addAlert({
-                    msg:              'New Attribute is Created.',
-                    type:             'success',
+                    msg:              'Not able to Create an Attribute with no values.',
+                    type:             'error',
                     dismissOnTimeout: 5000
                 });
+            } else {
+                this._statsDataService.postAttributeData(attributeName, attributeValue).subscribe((response:any) => {
+                    if(!isNullOrUndefined(response)) {
+                        this.alert.addAlert({
+                            msg:              'New Attribute is Created.',
+                            type:             'success',
+                            dismissOnTimeout: 5000
+                        });
+                    }
+                });
             }
-        });
+        } else {
+            this.alert.addAlert({
+                msg:              'Please Check your data.',
+                type:             'warning',
+                dismissOnTimeout: 5000
+            });
+        }
         this.categoryExtraction();
     }
 
     private deleteCorrelation(correlationId:number):void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlation/delete/', correlationId).subscribe((response:any) => {
-            console.log(response);
         });
+        this.categoryExtraction();
     }
 
     private selectedPlentyAttribute(event:any):any {
@@ -456,6 +491,5 @@ export class StatsViewComponent extends Translation implements OnInit
     {
         this.categoryExtraction();
         this.editCorrelationId = id;
-        console.log(this.editCorrelationId);
     }
 }
