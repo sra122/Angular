@@ -7,4 +7,7 @@
     </terra-button>
 </terra-base-toolbar>
 
-<p>Your token will be expired by {{this._expireTime}}</p>
+<div *ngIf="this._expireTime">
+    <p>Your token will be expired by {{this._expireTime}}</p>
+</div>
+

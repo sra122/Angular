@@ -3,7 +3,7 @@ import {
     OnInit,
     ViewChild
 } from '@angular/core';
-import { TerraOverlayComponent } from '@plentymarkets/terra-components';
+import {TerraBaseService, TerraOverlayComponent} from '@plentymarkets/terra-components';
 import { TerraOverlayButtonInterface } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { TerraSelectBoxValueInterface } from '@plentymarkets/terra-components';
@@ -39,6 +39,7 @@ export class ItoolsComponent extends Translation implements OnInit
     public ngOnInit():void
     {
         this.getTokenExpireTime();
+        this.getTestData();
     }
 
     private getLoginUrl():void
@@ -55,7 +56,6 @@ export class ItoolsComponent extends Translation implements OnInit
                         this._statsDataService.postPbSession().subscribe(
                             (sessionResponse:any) =>
                             {
-                                console.log(sessionResponse);
                                 // todo: save the session timestamp in system
                                 let popup:any = window.open(
                                     process.env.PB_API_URL + '/oauth2/authorize?app_id=' +
@@ -82,6 +82,16 @@ export class ItoolsComponent extends Translation implements OnInit
         this._statsDataService.getRestCallData('markets/panda-black/expire-time').subscribe(
             (response:any) => {
                 this._expireTime = new Date(response * 1000);
+            }
+        );
+    }
+
+    private getTestData():any
+    {
+        this._isLoading = true;
+        this._statsDataService.getRestCallData('test').subscribe(
+            (response:any) => {
+                console.log(response);
             }
         );
     }

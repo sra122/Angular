@@ -17,6 +17,10 @@
                 <terra-button inputCaption="Create New Attribute"
                               (outputClicked)="openOverlayForAttributeCreation()">
                 </terra-button>
+                <terra-button inputIcon='icon-refresh'
+                              inputTooltipPlacement="left"
+                              (outputClicked)="categoryExtraction()">
+                </terra-button>
             </terra-base-toolbar>
         </div>
     </div>
@@ -51,7 +55,7 @@
         <terra-overlay #viewChildOverlayAttribute
                        inputOverlayTitle="Create New Attribute"
                        [inputIsLarge]="true">
-            <terra-portlet inputPortletHeader="input uses ngModel">
+            <terra-portlet>
                 <terra-text-input inputName="attributeName (Bsp. Farbe)"
                                   [(ngModel)]="_attributename">
                 </terra-text-input>

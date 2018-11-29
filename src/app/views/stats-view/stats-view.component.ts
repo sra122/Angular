@@ -309,7 +309,6 @@ export class StatsViewComponent extends Translation implements OnInit
         {
             for(let category of response.entries)
             {
-                console.log(category);
                 this.categoryMapping.push(category);
             }
         });
