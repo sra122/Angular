@@ -93,6 +93,11 @@
                     <div buttons>
                         <terra-button inputIcon="icon-category_edit"
                                       inputIsPrimary="true"
+                                      inputTooltipText="Attribute Mapping"
+                                      (outputClicked)="attributeMappingButton()">
+                        </terra-button>
+                        <terra-button inputIcon="icon-category_edit"
+                                      inputIsPrimary="true"
                                       inputTooltipText="Edit Category Mapping"
                                       (outputClicked)="editCorrelationInfo(correlation.id)">
                         </terra-button>

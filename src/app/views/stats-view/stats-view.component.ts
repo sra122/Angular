@@ -491,4 +491,12 @@ export class StatsViewComponent extends Translation implements OnInit
         this.categoryExtraction();
         this.editCorrelationId = id;
     }
+
+    private attributeMappingButton():void
+    {
+        this.openOverlayForAttributeMapping();
+        this._statsDataService.getRestCallData('attribute-mapping').subscribe((response:any) => {
+            this.attributeMapping(response);
+        });
+    }
 }
