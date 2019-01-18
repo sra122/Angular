@@ -12,7 +12,7 @@ import { TerraSimpleTableHeaderCellInterface } from '@plentymarkets/terra-compon
 import { TerraSimpleTableRowInterface } from '@plentymarkets/terra-components';
 import { TerraSimpleTableCellInterface } from '@plentymarkets/terra-components';
 import { TerraButtonInterface } from '@plentymarkets/terra-components';
-import { isNullOrUndefined } from 'util';
+import { isNull, isNullOrUndefined } from 'util';
 
 @Component({
     selector: 'items-status',
@@ -46,11 +46,12 @@ export class ItemsStatusComponent extends Translation implements OnInit
     public ngOnInit():void
     {
         this.getTestData();
+        this.getAsinInfo();
     }
 
     private getTestData():any
     {
-        let headerNames:any = ['VariationId', 'Attribute Name', 'Attribute Value', 'status'];
+        let headerNames:any = ['VariationId', 'status', 'Reason'];
 
         for(let headerName of headerNames)
         {
@@ -81,7 +82,7 @@ export class ItemsStatusComponent extends Translation implements OnInit
 
                     cellList.push(variationId);
 
-                    if(!isNullOrUndefined(item.VariationAttributeValues[0])) {
+                    /*if(!isNullOrUndefined(item.VariationAttributeValues[0])) {
                         let attributeName:TerraSimpleTableCellInterface = {
                             caption: item.VariationAttributeValues[0].attribute.backendName,
                             icon: 'icon-referrer_backend'
@@ -100,15 +101,42 @@ export class ItemsStatusComponent extends Translation implements OnInit
                         cellList.push(attributeValue);
                     } else {
                         cellList.push();
-                    }
+                    }*/
 
                     if(!isNullOrUndefined(this.itemsStatus[item.id])) {
                         let status:TerraSimpleTableCellInterface = {
-                            caption: 'Attributes ' + this.itemsStatus[item.id] + ' is missing',
+                            caption: 'Required data is missing',
+                            icon: 'icon-referrer_backend'
+                        };
+                        cellList.push(status);
+                    } else if(isNull(this.itemsStatus[item.id])) {
+                        let status:TerraSimpleTableCellInterface = {
+                            caption: 'Item sent to PandaBlack',
                             icon: 'icon-referrer_backend'
                         };
                         cellList.push(status);
                     }
+
+                    let buttonList:Array<TerraButtonInterface> = [];
+
+                    buttonList.push({
+                        caption: 'click here',
+                        clickFunction: ():void =>
+                        {
+                            if(!isNullOrUndefined(this.itemsStatus[item.id])) {
+                                alert(this.itemsStatus[item.id]);
+                            } else if(isNull(this.itemsStatus[item.id])) {
+                                alert('Looks perfect');
+                            }
+
+                        }
+                    });
+
+                    let buttonCell:TerraSimpleTableCellInterface = {
+                        buttonList: buttonList
+                    };
+
+                    cellList.push(buttonCell);
 
 
                     let row:TerraSimpleTableRowInterface<any> = {
@@ -129,5 +157,13 @@ export class ItemsStatusComponent extends Translation implements OnInit
     public get rowList():Array<TerraSimpleTableRowInterface<any>>
     {
         return this._rowList;
+    }
+
+
+    private getAsinInfo():any
+    {
+        this._statsDataService.getRestCallData('asin').subscribe((response:any) => {
+           console.log(response);
+        });
     }
 }

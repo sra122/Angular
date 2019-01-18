@@ -274,7 +274,7 @@ export class StatsViewComponent extends Translation implements OnInit
             clickFunction: ():void =>
                             {
                                 this.vendorCategoryArray = [];
-                                if(category.id !== 1) {
+                                if(category.parentId !== 0) {
                                     this.vendorOnlyParentCategorySelection = false;
                                     this.vendorCategoryArray.push(category);
                                 } else {
@@ -344,7 +344,10 @@ export class StatsViewComponent extends Translation implements OnInit
                    }
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
                    this.openOverlayForAttributeMapping();
-                   this.attributeMapping(this.vendorCategoryArray[0]);
+                   this._statsDataService.getRestCallData('markets/panda-black/vendor-attribute').subscribe((response:any) => {
+                       console.log(response);
+                       this.attributeMapping(response);
+                   });
                } else {
                    this.alert.addAlert({
                        msg:              'This Category Mapping is already existed',
@@ -376,14 +379,15 @@ export class StatsViewComponent extends Translation implements OnInit
         }
     }
 
-    private attributeMapping(vendorCategoryData:any):void
+    private attributeMapping(attributeData:any):void
     {
         this._selectableVendorCategoriesList = [];
         this._selectableOptionTypesList = [];
-        vendorCategoryData.attributeValueSets.forEach(function(attribute:any):void {
+        attributeData.forEach(function(attribute:any):void {
+            console.log(attribute);
             this._selectableVendorCategoriesList.push({
-               value: attribute.displayName,
-               caption: this._selectableVendorCategoriesList.length
+               value: attribute.name,
+               caption: attribute.name
             });
         }.bind(this));
         this._statsDataService.getRestCallData('markets/panda-black/attributes').subscribe((response:any) =>
