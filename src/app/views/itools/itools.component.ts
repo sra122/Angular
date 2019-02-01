@@ -3,7 +3,7 @@ import {
     OnInit,
     ViewChild
 } from '@angular/core';
-import {TerraBaseService, TerraOverlayComponent} from '@plentymarkets/terra-components';
+import { TerraBaseService, TerraOverlayComponent } from '@plentymarkets/terra-components';
 import { TerraOverlayButtonInterface } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { TerraSelectBoxValueInterface } from '@plentymarkets/terra-components';
@@ -40,6 +40,8 @@ export class ItoolsComponent extends Translation implements OnInit
     {
         this.getTokenExpireTime();
         this.getTestData();
+        this.updateAttribute();
+        this.createOrderProperties();
     }
 
     private getLoginUrl():void
@@ -90,6 +92,39 @@ export class ItoolsComponent extends Translation implements OnInit
     {
         this._isLoading = true;
         this._statsDataService.getRestCallData('test').subscribe(
+            (response:any) => {
+                console.log(response);
+            }
+        );
+    }
+
+    private createOrder():any
+    {
+        this._isLoading = true;
+
+        this._statsDataService.getRestCallData('markets/panda-black/create-order').subscribe(
+            (response:any) => {
+                console.log(response);
+            }
+        );
+    }
+
+
+    private createOrderProperties():any
+    {
+        this._isLoading = true;
+        this._statsDataService.getRestCallData('markets/panda-black/create-order-properties').subscribe(
+            (response:any) => {
+                console.log(response);
+            }
+        );
+    }
+
+    private updateAttribute():any
+    {
+        this._isLoading = true;
+
+        this._statsDataService.getRestCallData('markets/panda-black/update-pb-attributes').subscribe(
             (response:any) => {
                 console.log(response);
             }

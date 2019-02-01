@@ -384,7 +384,6 @@ export class StatsViewComponent extends Translation implements OnInit
         this._selectableVendorCategoriesList = [];
         this._selectableOptionTypesList = [];
         attributeData.forEach(function(attribute:any):void {
-            console.log(attribute);
             this._selectableVendorCategoriesList.push({
                value: attribute.name,
                caption: attribute.name
