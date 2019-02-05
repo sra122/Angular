@@ -123,6 +123,23 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+
+    public postAttribute(id:number):any
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/create-attribute/' + id;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
     public postAttributeMapping(vendorAttribute:string, plentyMarketAttribute:string):any
     {
         this.setAuthorization();

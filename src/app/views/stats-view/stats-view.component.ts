@@ -115,6 +115,7 @@ export class StatsViewComponent extends Translation implements OnInit
     public vendorCategories:Array<VendorCategoriesInterface>;
     public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
     public vendorCategoriesCorrelationArray:Array<any>;
+    public categoryAttributes:Array<any>;
     @Input() public vendorCategoryArray:Array<any>;
     @Input() public categoryMapping:Array<CorrelationsInterface>;
     @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
@@ -158,6 +159,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this.vendorCategoriesCorrelationArray = [];
         this._selectableOptionTypesList = [];
         this._selectableVendorCategoriesList = [];
+        this.categoryAttributes = [];
         this._viewContainerRef = viewContainerRef;
         this.attributeMappingRecord = [];
         this.editCorrelationId = 0;
@@ -183,6 +185,7 @@ export class StatsViewComponent extends Translation implements OnInit
     public categoryExtraction():void
     {
         this.categoryMapping = [];
+        this.categoryAttributes = [];
         this.attributeMappingRecord = [];
         this.getParentCategories();
         this.getVendorCategories();
@@ -333,6 +336,7 @@ export class StatsViewComponent extends Translation implements OnInit
                       count++;
                    }
                }.bind(this));
+
                if(count <= 0 || this.editCorrelationId !== 0)
                {
                    this.vendorCategoriesCorrelation = {
@@ -343,10 +347,15 @@ export class StatsViewComponent extends Translation implements OnInit
                        this.vendorCategoriesCorrelationArray = [];
                    }
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
-                   this.openOverlayForAttributeMapping();
-                   this._statsDataService.getRestCallData('markets/panda-black/vendor-attribute').subscribe((response:any) => {
-                       console.log(response);
-                       this.attributeMapping(response);
+                   this.categoryAttributes = [];
+                   this._statsDataService.getRestCallData(
+                       'markets/panda-black/vendor-attribute/' + this.vendorCategoryArray[0].id
+                   ).subscribe((response:any) => {
+                       if(!isNullOrUndefined(response)) {
+                           this.categoryAttributes.push(response);
+                           this.openOverlayForAttributeMapping();
+                           this.attributeMapping(this.vendorCategoryArray[0].id);
+                       }
                    });
                } else {
                    this.alert.addAlert({
@@ -362,14 +371,14 @@ export class StatsViewComponent extends Translation implements OnInit
     private createCorrelationMapping():void
     {
         if(this.editCorrelationId === 0) {
-            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+            this.vendorCategoriesCorrelationArray.push(this.categoryAttributes);
             this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray).subscribe((response:any) => {
             });
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
             this.categoryExtraction();
         } else {
-            this.vendorCategoriesCorrelationArray.push(this.attributeMappingRecord);
+            this.vendorCategoriesCorrelationArray.push(this.categoryAttributes);
             this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId).subscribe((response:any) => {
             });
             this.vendorCategoryArray.splice(0, 1);
@@ -381,7 +390,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private attributeMapping(attributeData:any):void
     {
-        this._selectableVendorCategoriesList = [];
+        /*this._selectableVendorCategoriesList = [];
         this._selectableOptionTypesList = [];
         attributeData.forEach(function(attribute:any):void {
             this._selectableVendorCategoriesList.push({
@@ -398,14 +407,32 @@ export class StatsViewComponent extends Translation implements OnInit
                     caption: attribute.backendName
                 });
             }
-        });
+        });*/
 
         this._primaryButtonInterface = {
             icon:          'icon-confirm',
             caption:       'Confirm Mapping',
             isDisabled:    false,
-            clickFunction: ():void => this.confirmMapping(true)
+            clickFunction: ():void => this.createPBAttribute(attributeData)
         };
+    }
+
+    private createPBAttribute(id:any):void
+    {
+        this._statsDataService.postAttribute(id).subscribe((response:any) => {
+            console.log(response);
+        });
+        this.alert.addAlert({
+            msg:              'Attributes are created',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
+        this.createCorrelationMapping();
+        this.alert.addAlert({
+            msg:              'Category Mapping is created',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
     }
 
     private confirmMapping(response:boolean):void
@@ -442,7 +469,7 @@ export class StatsViewComponent extends Translation implements OnInit
         this.categoryExtraction();
     }
 
-    private createPlentyMarketAttribute(attributeName:string, attributeValue:string):any
+    private createPlentyMarketAttribute(attributeName:string, attributeValue:any):any
     {
         if(!isNullOrUndefined(attributeName) && !isNullOrUndefined(attributeValue)) {
             let attributeArray:any = attributeValue.split(',');
