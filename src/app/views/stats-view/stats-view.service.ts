@@ -46,7 +46,6 @@ export class StatsDataService extends TerraBaseService
         this.setHeader();
 
         let url:string = this.url + 'markets/panda-black/create-correlation';
-        console.log(url);
 
         return this.mapRequest(
             this.http.post(url,
@@ -55,35 +54,6 @@ export class StatsDataService extends TerraBaseService
                 }, {
                     headers: this.headers,
                 })
-        );
-    }
-
-    public getCorrelationData(id:number = null):Observable<void>
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + 'markets/panda-black/correlation/' + id;
-
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body:    ''
-            })
-        );
-    }
-
-    public getAttributeMapping(id:number = null):any
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + 'markets/panda-black/attribute-mapping/' + id;
-        return this.mapRequest(
-            this.http.get(url, {
-                headers: this.headers,
-                body: ''
-            })
         );
     }
 
@@ -105,24 +75,6 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public postAttributeData(attributeName:string, attributeValue:string):any
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + 'markets/panda-black/attribute';
-
-        return this.mapRequest(
-            this.http.post(url,
-                {
-                    new_attribute: attributeName,
-                    attribute_values: attributeValue
-                }, {
-                    headers: this.headers
-                })
-        );
-    }
-
 
     public postAttribute(id:number):any
     {
@@ -140,24 +92,6 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
-    public postAttributeMapping(vendorAttribute:string, plentyMarketAttribute:string):any
-    {
-        this.setAuthorization();
-        this.setHeader();
-
-        let url:string = this.url + 'markets/panda-black/attribute-mapping';
-
-        return this.mapRequest(
-            this.http.post(url,
-                {
-                    vendor_attribute: vendorAttribute,
-                    plenty_attribute: plentyMarketAttribute
-                }, {
-                    headers: this.headers
-                })
-        );
-    }
-
     public deleteRestCallData(restRoute:string, id:number = null):Observable<void>
     {
         this.setAuthorization();
@@ -169,7 +103,6 @@ export class StatsDataService extends TerraBaseService
         } else {
             url = this.url + restRoute + id;
         }
-        console.log(url);
         return this.mapRequest(
             this.http.delete(url,
                 {
@@ -178,6 +111,21 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+    public postPbProducts(restRoute:string):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + restRoute;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
 
     public postPbCallData(restRoute:string):Observable<void>
     {

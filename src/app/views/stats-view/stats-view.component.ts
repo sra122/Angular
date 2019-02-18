@@ -43,6 +43,7 @@ interface EachCategoryMappingInterface
 {
     category?:Array<CategoryInterface>;
     vendorCategory?:Array<VendorCategoryInterface>;
+    attributes?:Array<VendorAttributesDataInterface>;
 }
 
 interface VendorCategoriesInterface
@@ -76,6 +77,16 @@ interface VendorCategoryCorrelationInterface
 {
     category?:any;
     vendorCategory?:any;
+    attributes?:any;
+}
+
+interface VendorAttributesDataInterface
+{
+    category_id?:any;
+    category_name?:string;
+    name?:string;
+    required:boolean;
+    values:any;
 }
 
 interface VendorAttributeInterface
@@ -134,7 +145,6 @@ export class StatsViewComponent extends Translation implements OnInit
     private _viewContainerRef:ViewContainerRef;
     private attributeMappingRecord:Array<any>;
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
-    private selectedValue:string = '';
     private editCorrelationId:number = 0;
     private vendorParentCategory:Array<any>;
 
@@ -177,9 +187,16 @@ export class StatsViewComponent extends Translation implements OnInit
         this.viewChildOverlayWithPrimaryButton.showOverlay();
     }
 
-    public openOverlayForAttributeCreation():void
+    public sendProducts():void
     {
-        this.viewChildOverlayAttribute.showOverlay();
+        this._statsDataService.postPbProducts('markets/panda-black/products-data').subscribe((response:any) => {
+        });
+
+        this.alert.addAlert({
+            msg:              'Products are sent to PandaBlack Successfully.',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
     }
 
     public categoryExtraction():void
@@ -229,7 +246,7 @@ export class StatsViewComponent extends Translation implements OnInit
                     this.categoryArray.push(response);
                     if(this.vendorOnlyParentCategorySelection) {
                         this.alert.addAlert({
-                            msg:              'Please Select Child Category from JD Category Tree',
+                            msg:              'Please Select Child Category from PandaBlack Category Tree',
                             type:             'warning',
                             dismissOnTimeout: 5000
                         });
@@ -339,24 +356,34 @@ export class StatsViewComponent extends Translation implements OnInit
 
                if(count <= 0 || this.editCorrelationId !== 0)
                {
+                   this._statsDataService.getRestCallData(
+                       'markets/panda-black/vendor-attribute/' + this.vendorCategoryArray[0].id
+                   ).subscribe((response:any) => {
+                       if(!isNullOrUndefined(response)) {
+                           let n:number = 0;
+                           for(let k in response) {
+                               if(response.hasOwnProperty(k)) {
+                                   if(response[k].required === true) {
+                                       this.categoryAttributes[n++] = response[k].name + '-PB-' + k;
+                                   }
+                               }
+                           }
+                           this.openOverlayForAttributeMapping();
+                           this.attributeMapping(this.vendorCategoryArray[0].id);
+                       }
+                   });
+
                    this.vendorCategoriesCorrelation = {
                        category: this.categoryArray,
-                       vendorCategory: this.vendorCategoryArray
+                       vendorCategory: this.vendorCategoryArray,
+                       attributes: this.categoryAttributes
                    };
                    if(this.vendorCategoriesCorrelationArray.length > 0) {
                        this.vendorCategoriesCorrelationArray = [];
                    }
                    this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
                    this.categoryAttributes = [];
-                   this._statsDataService.getRestCallData(
-                       'markets/panda-black/vendor-attribute/' + this.vendorCategoryArray[0].id
-                   ).subscribe((response:any) => {
-                       if(!isNullOrUndefined(response)) {
-                           this.categoryAttributes.push(response);
-                           this.openOverlayForAttributeMapping();
-                           this.attributeMapping(this.vendorCategoryArray[0].id);
-                       }
-                   });
+
                } else {
                    this.alert.addAlert({
                        msg:              'This Category Mapping is already existed',
@@ -371,14 +398,12 @@ export class StatsViewComponent extends Translation implements OnInit
     private createCorrelationMapping():void
     {
         if(this.editCorrelationId === 0) {
-            this.vendorCategoriesCorrelationArray.push(this.categoryAttributes);
             this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray).subscribe((response:any) => {
             });
             this.vendorCategoryArray.splice(0, 1);
             this.categoryArray.splice(0, 1);
             this.categoryExtraction();
         } else {
-            this.vendorCategoriesCorrelationArray.push(this.categoryAttributes);
             this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId).subscribe((response:any) => {
             });
             this.vendorCategoryArray.splice(0, 1);
@@ -390,28 +415,9 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private attributeMapping(attributeData:any):void
     {
-        /*this._selectableVendorCategoriesList = [];
-        this._selectableOptionTypesList = [];
-        attributeData.forEach(function(attribute:any):void {
-            this._selectableVendorCategoriesList.push({
-               value: attribute.name,
-               caption: attribute.name
-            });
-        }.bind(this));
-        this._statsDataService.getRestCallData('markets/panda-black/attributes').subscribe((response:any) =>
-        {
-            for(let attribute of response.entries)
-            {
-                this._selectableOptionTypesList.push({
-                    value: attribute.backendName,
-                    caption: attribute.backendName
-                });
-            }
-        });*/
-
         this._primaryButtonInterface = {
             icon:          'icon-confirm',
-            caption:       'Confirm Mapping',
+            caption:       'Create PandaBlack Attributes.',
             isDisabled:    false,
             clickFunction: ():void => this.createPBAttribute(attributeData)
         };
@@ -420,7 +426,6 @@ export class StatsViewComponent extends Translation implements OnInit
     private createPBAttribute(id:any):void
     {
         this._statsDataService.postAttribute(id).subscribe((response:any) => {
-            console.log(response);
         });
         this.alert.addAlert({
             msg:              'Attributes are created',
@@ -435,73 +440,10 @@ export class StatsViewComponent extends Translation implements OnInit
         });
     }
 
-    private confirmMapping(response:boolean):void
-    {
-        this.alert.addAlert({
-            msg:              'Mapping is created',
-            type:             'success',
-            dismissOnTimeout: 5000
-        });
-
-        if(response === true) {
-            this.createCorrelationMapping();
-        }
-    }
-
-    private vendorAttributeMapping(vendorAttribute:string, plentyAttribute:string):any
-    {
-        this._statsDataService.postAttributeMapping(vendorAttribute, plentyAttribute).subscribe((attributeId:any) => {
-            this._statsDataService.getAttributeMapping(attributeId).subscribe((attributeMappingInfo:AttributeMappingInterface) => {
-                this.attributeMappingRecord.push(attributeMappingInfo);
-                this.alert.addAlert({
-                    msg:              'Attribute Mapping is created',
-                    type:             'success',
-                    dismissOnTimeout: 5000
-                });
-            });
-        });
-    }
-
     private deleteAllCorrelations():void
     {
         this._statsDataService.deleteRestCallData('markets/panda-black/correlations/delete').subscribe((response:any) => {
         });
-        this.categoryExtraction();
-    }
-
-    private createPlentyMarketAttribute(attributeName:string, attributeValue:any):any
-    {
-        if(!isNullOrUndefined(attributeName) && !isNullOrUndefined(attributeValue)) {
-            let attributeArray:any = attributeValue.split(',');
-            this.alert.addAlert({
-                msg:              'New Attribute has ' + attributeArray.length + ' values.',
-                type:             'success',
-                dismissOnTimeout: 5000
-            });
-            if(attributeArray.length === 0) {
-                this.alert.addAlert({
-                    msg:              'Not able to Create an Attribute with no values.',
-                    type:             'error',
-                    dismissOnTimeout: 5000
-                });
-            } else {
-                this._statsDataService.postAttributeData(attributeName, attributeValue).subscribe((response:any) => {
-                    if(!isNullOrUndefined(response)) {
-                        this.alert.addAlert({
-                            msg:              'New Attribute is Created.',
-                            type:             'success',
-                            dismissOnTimeout: 5000
-                        });
-                    }
-                });
-            }
-        } else {
-            this.alert.addAlert({
-                msg:              'Please Check your data.',
-                type:             'warning',
-                dismissOnTimeout: 5000
-            });
-        }
         this.categoryExtraction();
     }
 
@@ -512,21 +454,9 @@ export class StatsViewComponent extends Translation implements OnInit
         this.categoryExtraction();
     }
 
-    private selectedPlentyAttribute(event:any):any {
-        this.selectedValue = event.target.value;
-    }
-
     private editCorrelationInfo(id:number):void
     {
         this.categoryExtraction();
         this.editCorrelationId = id;
-    }
-
-    private attributeMappingButton():void
-    {
-        this.openOverlayForAttributeMapping();
-        this._statsDataService.getRestCallData('attribute-mapping').subscribe((response:any) => {
-            this.attributeMapping(response);
-        });
     }
 }

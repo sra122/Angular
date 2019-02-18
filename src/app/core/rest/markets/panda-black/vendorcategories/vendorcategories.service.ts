@@ -28,7 +28,6 @@ export class VendorCategoriesService extends TerraBaseService
 
     public saveCorrelations(taxonomyCorrelations:Array<any>):any
     {
-        console.log(taxonomyCorrelations);
         this.setAuthorization();
         this.setHeader();
 

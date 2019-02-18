@@ -4,7 +4,6 @@ import {
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { PluginTerraBasicComponent } from './plugin-terra-basic.component';
-import { ItemsStatusComponent } from './views/items-status/items-status.component';
 import { TerraComponentsModule } from '@plentymarkets/terra-components/app/terra-components.module';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -29,7 +28,6 @@ import { LoadingConfig } from './core/config/loading.config';
     ],
     declarations: [
         PluginTerraBasicComponent,
-        ItemsStatusComponent,
         StatsViewComponent,
         ItoolsComponent
     ],

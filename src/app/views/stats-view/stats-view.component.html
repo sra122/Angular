@@ -9,13 +9,13 @@
                               (outputClicked)="categoryExtraction()">
                 </terra-button>
                 <terra-button inputIcon="icon-delete"
-                              inputTooltipText="delete correlation"
+                              inputTooltipText="delete all correlations"
                               inputIsSecondary="true"
                               inputTooltipPlacement="right"
                               (outputClicked)="deleteAllCorrelations()">
                 </terra-button>
-                <terra-button inputCaption="Create New Attribute"
-                              (outputClicked)="openOverlayForAttributeCreation()">
+                <terra-button inputCaption="Send Products to PandaBlack"
+                              (outputClicked)="sendProducts()">
                 </terra-button>
                 <terra-button inputIcon='icon-refresh'
                               inputTooltipPlacement="left"
@@ -29,44 +29,6 @@
                        inputOverlayTitle="Attribute Mapping"
                        [inputIsLarge]="true"
                        [inputPrimaryButtonInterface]="_primaryButtonInterface">
-            <div *ngFor="let attribute of _selectableVendorCategoriesList">
-                <div class="row">
-                    <div class="col-xs-5 col-md-5 col-lg-5" style="text-align: center">
-                        {{ attribute.value }}
-                    </div>
-                    <div class="col-xs-5 col-md-5 col-lg-5">
-                        <terra-select-box
-                            [inputListBoxValues]="_selectableOptionTypesList"
-                            [(ngModel)]="attribute.pickedValue">
-                        </terra-select-box>
-                    </div>
-                    <div class="col-xs-2 col-md-2 col-lg-2">
-                        <terra-button inputIcon="icon-switch_editor"
-                                      inputTooltipText="map"
-                                      inputTooltipPlacement="right"
-                                      (outputClicked)="vendorAttributeMapping(attribute.value, attribute.pickedValue)">
-                        </terra-button>
-                    </div>
-                </div>
-            </div>
-        </terra-overlay>
-    </div>
-    <div class="row">
-        <terra-overlay #viewChildOverlayAttribute
-                       inputOverlayTitle="Create New Attribute"
-                       [inputIsLarge]="true">
-            <terra-portlet>
-                <terra-text-input inputName="attributeName (Bsp. Farbe)"
-                                  [(ngModel)]="_attributename">
-                </terra-text-input>
-                <terra-text-input inputName="attributeValues (Bsp. Rot, Schwarz, Grun)"
-                                  [(ngModel)]="_attributeValues">
-
-                </terra-text-input>
-                <terra-button inputCaption="Create Attribute"
-                              (outputClicked)="createPlentyMarketAttribute(_attributename, _attributeValues)">
-                </terra-button>
-            </terra-portlet>
         </terra-overlay>
     </div>
     <div class="row">
@@ -75,27 +37,21 @@
                 <terra-info-box>
                     <div body class="row">
                         <div class="col-xs-12 col-md-6 col-lg-6 category-mapping">
-                            Jd category<br>
+                            PandaBlack category<br>
                             <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
                             <br><br>
                             PlentyMarket category<br>
                             <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
                         </div>
                         <div class="col-xs-12 col-md-6 col-lg-6">
-                            Attribute Mapping <br>
-                            <!--<div *ngFor="let attribute of correlation.settings[1];">
-                                <b>{{ attribute.name }}</b><br>
-                            </div>-->
-                            <div>{{ correlation.settings[1] }}</div>
+                            Attributes<br>
+                            <div *ngFor="let attribute of correlation.settings[0].attributes">
+                                <b>{{ attribute }}</b><br>
+                            </div>
                         </div>
                     </div>
 
                     <div buttons>
-                        <terra-button inputIcon="icon-category_edit"
-                                      inputIsPrimary="true"
-                                      inputTooltipText="Attribute Mapping"
-                                      (outputClicked)="attributeMappingButton()">
-                        </terra-button>
                         <terra-button inputIcon="icon-category_edit"
                                       inputIsPrimary="true"
                                       inputTooltipText="Edit Category Mapping"
