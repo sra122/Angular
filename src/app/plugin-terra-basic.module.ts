@@ -4,47 +4,58 @@ import {
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { PluginTerraBasicComponent } from './plugin-terra-basic.component';
-import { StartComponent } from './views/start/start.component';
 import { TerraComponentsModule } from '@plentymarkets/terra-components/app/terra-components.module';
 import { HttpModule } from '@angular/http';
-import { TranslationModule } from 'angular-l10n';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { L10nLoader, TranslationModule } from 'angular-l10n';
 import { FormsModule } from '@angular/forms';
-import { LocalizationConfig } from './core/localization/terra-localization.config';
+import { l10nConfig } from './core/localization/terra-localization.config';
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
+import { ItoolsComponent } from './views/itools/itools.component';
+import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
+import { LoadingConfig } from './core/config/loading.config';
+
 
 @NgModule({
     imports:      [
         BrowserModule,
         HttpModule,
         FormsModule,
-        TranslationModule.forRoot(),
+        HttpClientModule,
+        TranslationModule.forRoot(l10nConfig),
         TerraComponentsModule.forRoot()
     ],
     declarations: [
         PluginTerraBasicComponent,
-        StartComponent,
-        StatsViewComponent
+        StatsViewComponent,
+        ItoolsComponent
     ],
     providers:    [
-        LocalizationConfig,
+        LoadingConfig,
         {
             provide:    APP_INITIALIZER,
             useFactory: initLocalization,
-            deps:       [LocalizationConfig],
+            deps:       [L10nLoader],
             multi:      true
         },
-        StatsDataService
+        StatsDataService,
+        VendorCategoriesService
     ],
     bootstrap:    [
         PluginTerraBasicComponent
     ]
 })
+
 export class PluginTerraBasicModule
 {
+    constructor(public l10nLoader:L10nLoader) {
+        this.l10nLoader.load();
+    }
 }
 
-export function initLocalization(localizationConfig:LocalizationConfig):Function
+function initLocalization(l10nLoader:L10nLoader):Function
 {
-    return () => localizationConfig.load();
+    return ():Promise<void> => l10nLoader.load();
 }
+

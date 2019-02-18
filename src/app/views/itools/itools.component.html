@@ -1,0 +1,12 @@
+<terra-base-toolbar>
+    <terra-button inputIcon="icon-plugin_productive"
+                  inputTooltipText="login url"
+                  inputTooltipPlacement="right"
+                  inputIsTertiary="true"
+                  (outputClicked)="getLoginUrl()">
+    </terra-button>
+</terra-base-toolbar>
+
+<div *ngIf="this._expireTime">
+    <p>Your token will be expired by {{this._expireTime}}</p>
+</div>

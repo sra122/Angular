@@ -1,53 +1,37 @@
 import { Injectable } from '@angular/core';
 import { Http } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
     TerraBaseService,
     TerraLoadingSpinnerService
 } from '@plentymarkets/terra-components';
-
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class StatsDataService extends TerraBaseService
 {
-    public bearer:string;
-    private _basePathUrl:string;
+    private bearer:string;
+
     constructor(private _loadingSpinnerService:TerraLoadingSpinnerService,
                 private _http:Http)
     {
         super(_loadingSpinnerService, _http, '/rest/');
+
         if(process.env.ENV !== 'production')
         {
-            // tslint:disable-next-line:max-line-length
-            this.bearer = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjAxNzQ0MmZhNDAzMzRkMzY1YjFhNjcyZTY3NmI5O' +
-                        'TRjZjg2NTQ0YTFjOGZkNjZiN2Q5Y2EwMGNmODA1ODU4YTg4N2Q5NTk5MTM3ZDUxZWNhIn0.eyJhdWQiOiIxIiwi' +
-                        'anRpIjoiMDE3NDQyZmE0MDMzNGQzNjViMWE2NzJlNjc2Yjk5NGNmODY1NDRhMWM4ZmQ2NmI3ZDljYTAwY2Y4MDU' +
-                        '4NThhODg3ZDk1OTkxMzdkNTFlY2EiLCJpYXQiOjE1MjQ3MjczMjMsIm5iZiI6MTUyNDcyNzMyMywiZXhwIjoxNT' +
-                        'I0ODEzNzIzLCJzdWIiOiIxIiwic2NvcGVzIjpbIioiXX0.DC-i74vLaz1AXP9LX8IlG-6xESEy2Fkf2v_paTtkg' +
-                        'x7ArYpClQz9tC-LBFwmbWa46y3epprwWvFxsLFx84QgdexCVMvxlwoh8Ls-qEceKTTIj473PWiX7TMJrMWgOtRq' +
-                        '5g2SAnWLrc0-p4Wek3IPVNA3z3-3UfLpXdN2nsj1EM_gBFOhynhgEl-duDiDG2Cst1iZt9NIGBUaTrzBOU6u50-' +
-                        '6bPFJ-LKP9xWPRSQPagNGhfOqOkK9avSGyAGxK_MY4NdLE0RJtPB9bkLqGXUqKM_rBBYh1hra2fiufwzZMK7cPF' +
-                        'LPAgfcSZCzC7_DOuk9O12-F4M55vnUTLzOV10spsXB6pvKupAXGCN_5BFbSjJXxv538439XBRNiQsVB-2K9tgzOL' +
-                        'DiFTp5dEAXmaX3wsYnCFnp6vGm7GVrmHPaROT9UuFdKS2UYK3nYBjWQT8WewTkfRiG4JWEvzw1qvbXm8ZnAW-aVe' +
-                        'qcOkuJ4LpD7nqBX6tNUi4xQIJ_Pu17p7MT_4q6mjGKECu2oYe5PhNLrMIsgUL085TqHpyHBmgWeTfbXQGD1jEdDZJ' +
-                        'Nt9GUANVHqmJ1deb69UUdlXlhY_nnutcszuWlCEozqWUD-qPTeiGEOLmtKhBzqgeb-PNZn4xO4oubK-7s1T9QMPhdLKQBzzPpankj85CWqfawKkVsN8I';
-            this._basePathUrl = 'https://i-ways.plentymarkets-cloud02.com';
-            this.url = this._basePathUrl + this.url;
+            this.bearer = process.env.TOKEN;
+            this.url = process.env.BASE_URL + this.url;
         }
-        this.setHeader();
     }
 
     public getRestCallData(restRoute:string):Observable <Array<any>>
     {
         this.setAuthorization();
-        let url:string;
-        url = this._basePathUrl + restRoute;
-        let getreq = this.http.get(url, {
-            headers: this.headers,
-            body:    ''
-        });
+        this.setHeader();
 
-        console.log(this.headers);
+        let url:string = this.url + restRoute;
+
         return this.mapRequest(
             this.http.get(url, {
                 headers: this.headers,
@@ -56,14 +40,125 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+    public postRestCallData(taxonomyCorrelations:Array<any>):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/create-correlation';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    correlations: taxonomyCorrelations
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
+    public editCorrelation(taxonomyCorrelations:Array<any>, id:number = null):any
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/edit-correlations';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                    correlations: taxonomyCorrelations,
+                    id: id
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
+
+    public postAttribute(id:number):any
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + 'markets/panda-black/create-attribute/' + id;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
+    public deleteRestCallData(restRoute:string, id:number = null):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = '';
+        if(id === null) {
+            url = this.url + restRoute;
+        } else {
+            url = this.url + restRoute + id;
+        }
+        return this.mapRequest(
+            this.http.delete(url,
+                {
+                    headers: this.headers
+                })
+        );
+    }
+
+    public postPbProducts(restRoute:string):Observable<void>
+    {
+        this.setAuthorization();
+        this.setHeader();
+
+        let url:string = this.url + restRoute;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
+    public postPbCallData(restRoute:string):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+        let url:string = process.env.PB_API_URL +  restRoute;
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers,
+                })
+        );
+    }
+
+    public postPbSession():Observable<any>
+    {
+        let url:string = this.url + 'markets/panda-black/session';
+
+        return this.mapRequest(
+            this.http.post(url,
+                {
+                }, {
+                    headers: this.headers
+                })
+        );
+    }
+
     private setHeader():void
     {
-        if(this.bearer !== null && this.bearer.length > 0)
+        if(!isNullOrUndefined(this.bearer))
         {
             this.headers.set('Authorization', 'Bearer ' + this.bearer);
-            this.headers.set('Access-Control-Allow-Methods', 'GET');
-            this.headers.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-            this.headers.set('Access-Control-Allow-Origin', '*');
         }
     }
 }

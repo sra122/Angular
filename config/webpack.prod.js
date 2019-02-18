@@ -35,7 +35,9 @@ module.exports = function (env) {
                 'process.env': {
                     'ENV': JSON.stringify(METADATA.ENV),
                     'NODE_ENV': JSON.stringify(METADATA.ENV),
-                    'HMR': METADATA.HMR
+                    'HMR': METADATA.HMR,
+                    'PB_API_URL': JSON.stringify('https://pb.i-ways-network.org/api'),
+                    'PB_APP_ID': JSON.stringify('Lr7u9w86bUL5qsg7MJEVut8XYsqrZmTTxM67qFdH89f4NYQnHrkgKkMAsH9YLE4tjce4GtPSqrYScSt7w558USrVgXHB')
                 }
             }),
 

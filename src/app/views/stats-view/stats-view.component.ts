@@ -1,110 +1,462 @@
 import {
-    Component,
-    OnInit
+    Component, Input,
+    OnInit, ViewChild, ViewContainerRef
 } from '@angular/core';
 import { StatsDataService } from './stats-view.service';
-import { TerraAlertComponent } from '@plentymarkets/terra-components';
+import {
+    TerraAlertComponent, TerraLeafInterface, TerraMultiSplitViewInterface, TerraOverlayButtonInterface,
+    TerraOverlayComponent,
+    TerraSelectBoxValueInterface
+} from '@plentymarkets/terra-components';
+import { Translation, TranslationService } from 'angular-l10n';
+import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
-interface PluginInterface
-{
-    name?:string;
-    id?:number;
-    created_at?:string;
-}
-interface UserInterface
-{
-    username?:string;
-    email?:string;
-}
-interface WebStoreInterface
+import { isNullOrUndefined } from 'util';
+import { LoadingConfig } from '../../core/config/loading.config';
+
+interface CategoriesInterface
 {
     id?:number;
-    name?:string;
+    level?:number;
+    name?:any;
+    parentId?:number;
+    parentCategoryId:any;
+    child:Array<CategoriesInterface>;
+    children?:Array<CategoriesInterface>;
+    details?:Array<CategoriesInterface>;
+    subLeafList?:Array<CategoryInterface>;
+}
+
+interface CorrelationsInterface
+{
+    entries?:Array<CorrelationInterface>;
+}
+
+interface CorrelationInterface
+{
+    id?:number;
     type?:string;
+    settings?:Array<EachCategoryMappingInterface>;
 }
+
+interface EachCategoryMappingInterface
+{
+    category?:Array<CategoryInterface>;
+    vendorCategory?:Array<VendorCategoryInterface>;
+    attributes?:Array<VendorAttributesDataInterface>;
+}
+
+interface VendorCategoriesInterface
+{
+    id?:number;
+    level?:number;
+    name?:any;
+    parentId?:number;
+    children?:Array<VendorCategoriesInterface>;
+    details?:Array<VendorCategoriesInterface>;
+    subLeafList?:Array<VendorCategoryInterface>;
+}
+
+interface VendorCategoryInterface
+{
+    id?:number;
+    caption?:any;
+    subLeafList?:Array<VendorCategoryInterface>;
+
+}
+
+interface CategoryInterface
+{
+    id?:number;
+    caption?:any;
+    name?:any;
+    subLeafList?:Array<CategoryInterface>;
+}
+
+interface VendorCategoryCorrelationInterface
+{
+    category?:any;
+    vendorCategory?:any;
+    attributes?:any;
+}
+
+interface VendorAttributesDataInterface
+{
+    category_id?:any;
+    category_name?:string;
+    name?:string;
+    required:boolean;
+    values:any;
+}
+
+interface VendorAttributeInterface
+{
+    value:any;
+    caption:string | number;
+    icon?:string;
+    position?:number;
+    pickedValue?:any;
+}
+
+interface AttributeMappingInterface
+{
+    id:number;
+    marketplaceId:string;
+    type:string;
+    settings:AttributeMappingInfoInterface;
+}
+
+interface AttributeMappingInfoInterface
+{
+    vendorAttribute:string;
+    plentyAttribute:string;
+}
+
 
 @Component({
     selector: 'stats-view',
     template: require('./stats-view.component.html'),
     styles:   [require('./stats-view.component.scss')]
 })
-export class StatsViewComponent implements OnInit
+export class StatsViewComponent extends Translation implements OnInit
 {
-    public plugins:Array<PluginInterface>;
-    public user:UserInterface;
-    public webStores:Array<WebStoreInterface>;
+    @Input() public splitViewInstance:TerraMultiSplitViewInterface;
+    public categories:Array<CategoriesInterface>;
+    public category:CategoryInterface;
+    public vendorCategories:Array<VendorCategoriesInterface>;
+    public vendorCategoriesCorrelation:VendorCategoryCorrelationInterface;
+    public vendorCategoriesCorrelationArray:Array<any>;
+    public categoryAttributes:Array<any>;
+    @Input() public vendorCategoryArray:Array<any>;
+    @Input() public categoryMapping:Array<CorrelationsInterface>;
+    @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
+    @ViewChild('viewChildOverlayAttribute') public viewChildOverlayAttribute:TerraOverlayComponent;
+    private _primaryButtonInterface:TerraOverlayButtonInterface;
+    private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
+    private _selectableVendorCategoriesList:Array<VendorAttributeInterface> = [];
 
     private _alert:TerraAlertComponent;
+    private _lastUiId:number;
+    private _isLoading:boolean;
+    private vendorOnlyParentCategorySelection:boolean;
+    private vendorCategoryName:string;
+    private categoryName:string;
+    private categoryArray:Array<any>;
+    private _viewContainerRef:ViewContainerRef;
+    private attributeMappingRecord:Array<any>;
+    private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
+    private editCorrelationId:number = 0;
+    private vendorParentCategory:Array<any>;
 
-    constructor(private _statsDataService:StatsDataService)
+    constructor(private _statsDataService:StatsDataService,
+                public translation:TranslationService,
+                public _vendorCategories:VendorCategoriesService,
+                private _loadingConfig:LoadingConfig,
+                viewContainerRef:ViewContainerRef)
     {
+        super();
+
+        this._isLoading = false;
+
         this._alert = TerraAlertComponent.getInstance();
+
+        this._lastUiId = 0;
+
+        this.vendorCategoryName = '';
+        this.categoryName = '';
+        this.categoryMapping = [];
+        this.vendorCategoryArray = [];
+        this.vendorCategoriesCorrelationArray = [];
+        this._selectableOptionTypesList = [];
+        this._selectableVendorCategoriesList = [];
+        this.categoryAttributes = [];
+        this._viewContainerRef = viewContainerRef;
+        this.attributeMappingRecord = [];
+        this.editCorrelationId = 0;
+        this.vendorOnlyParentCategorySelection = false;
     }
 
     public ngOnInit():void
     {
-        this.updateData();
+        this._isLoading = true;
+        this.getCorrelation();
     }
 
-    public updateData():void
+    public openOverlayForAttributeMapping():void
     {
-        this.createPluginData();
-        this.createUserData();
-        this.createWebStoreData();
-        this._alert.addAlert(
-            {
-                msg:'Fetching data',
-                type:'info',
-                dismissOnTimeout:3000,
-                identifier: 'info'
-            });
+        this.viewChildOverlayWithPrimaryButton.showOverlay();
     }
 
-    private createPluginData():void
+    public sendProducts():void
     {
-        this.plugins = [];
-        this._statsDataService.getRestCallData('/rest/plugins').subscribe((response:Array<any>) =>
+        this._statsDataService.postPbProducts('markets/panda-black/products-data').subscribe((response:any) => {
+        });
+
+        this.alert.addAlert({
+            msg:              'Products are sent to PandaBlack Successfully.',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
+    }
+
+    public categoryExtraction():void
+    {
+        this.categoryMapping = [];
+        this.categoryAttributes = [];
+        this.attributeMappingRecord = [];
+        this.getParentCategories();
+        this.getVendorCategories();
+        this.getCorrelation();
+        this.editCorrelationId = 0;
+        this.vendorCategoryArray = [];
+        this.categoryArray = [];
+        this.vendorParentCategory = [];
+    }
+
+    private getParentCategories():void
+    {
+        this.categories = [];
+        this._statsDataService.getRestCallData('markets/panda-black/parent-categories').subscribe((response:any) =>
         {
-            for(let plugin of response)
+            for(let category of response)
             {
-                this.plugins.push(
-                    {
-                        name: plugin.name,
-                        id: plugin.id,
-                        created_at: plugin.created_at
-                    });
+                if(!isNullOrUndefined(category.child)) {
+                    this.categories.push(this.getChildCategories(category));
+                }
             }
         });
     }
 
-    private createWebStoreData():void
+    private getChildCategories(category:CategoriesInterface):any
     {
-        this.webStores = [];
-        this._statsDataService.getRestCallData('/rest/webstores').subscribe((response:Array<any>) =>
-        {
-            for(let store of response)
-            {
-                this.webStores.push(
-                    {
-                        id: store.id,
-                        name: store.name,
-                        type: store.type
-                    });
-            }
-        });
-    }
+        this.vendorCategoriesCorrelation = {};
 
-    private createUserData():void
-    {
-        this.user = {};
-        this._statsDataService.getRestCallData('/rest/user').subscribe((response:any) =>
-        {
-            console.log('Hello');
-            this.user =
+        let leafData:TerraLeafInterface = {
+            caption: category.details[0].name,
+            id: category.id,
+            icon:null,
+            subLeafList:null,
+            isOpen: false,
+            isActive: false,
+            clickFunction:  ():void =>
+            {
+                this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + category.id).subscribe((response:any) =>
                 {
-                    username: response.user,
-                    email: response.user_email
-                };
+                    this.categoryArray = [];
+                    this.categoryArray.push(response);
+                    if(this.vendorOnlyParentCategorySelection) {
+                        this.alert.addAlert({
+                            msg:              'Please Select Child Category from PandaBlack Category Tree',
+                            type:             'warning',
+                            dismissOnTimeout: 5000
+                        });
+                    }
+                    if(this.vendorCategoryArray.length !== 0 && this.categoryArray.length !== 0) {
+                        this.createCorrelation();
+                    }
+                });
+            }
+        };
+
+        if(!isNullOrUndefined(category.child))
+        {
+            leafData.icon = 'icon-folder';
+            leafData.subLeafList = [];
+            category.child.forEach((child:any) =>
+            {
+                leafData.subLeafList.push(this.getChildCategories(child));
+            });
+        }
+        return leafData;
+    }
+
+
+    private getVendorCategories():void
+    {
+        this.vendorCategories = [];
+        this._statsDataService.getRestCallData('markets/panda-black/vendor-categories').subscribe((response:any) =>
+        {
+            for(let category of response)
+            {
+                this.vendorCategories.push(this.getVendorChildCategories(category));
+            }
         });
+    }
+
+    private getVendorChildCategories(category:CategoriesInterface):TerraLeafInterface
+    {
+        let vendorLeafData:TerraLeafInterface = {
+            caption: category.name,
+            id: category.id,
+            icon:null,
+            subLeafList:null,
+            isActive: false,
+            clickFunction: ():void =>
+                            {
+                                this.vendorCategoryArray = [];
+                                if(category.parentId !== 0) {
+                                    this.vendorOnlyParentCategorySelection = false;
+                                    this.vendorCategoryArray.push(category);
+                                } else {
+                                    this.vendorOnlyParentCategorySelection = true;
+                                }
+                                if(this.categoryArray.length !== 0 && this.vendorCategoryArray.length !== 0) {
+                                    this.createCorrelation();
+                                }
+                            }
+        };
+
+        if(!isNullOrUndefined(category.children))
+        {
+            if(category.children.length > 0)
+            {
+                vendorLeafData.icon = 'icon-folder';
+                vendorLeafData.subLeafList = [];
+            }
+
+            category.children.forEach((child:any) =>
+            {
+                vendorLeafData.subLeafList.push(this.getVendorChildCategories(child));
+            });
+        }
+
+        return vendorLeafData;
+    }
+
+    private getCorrelation():any
+    {
+        this._statsDataService.getRestCallData('markets/panda-black/correlations').subscribe((response:any) =>
+        {
+            for(let category of response.entries)
+            {
+                this.categoryMapping.push(category);
+            }
+        });
+        return this.categoryMapping;
+    }
+
+    private createCorrelation():void
+    {
+        this._isLoading = true;
+
+        if(!isNullOrUndefined(this.vendorCategoryArray) && !isNullOrUndefined((this.categoryArray)))
+        {
+           if(this.vendorCategoryArray.length > 0 && this.categoryArray.length > 0)
+           {
+               let count:number = 0;
+               this.categoryMapping.forEach(function (value:any):void {
+                   if(
+                       this.vendorCategoryArray[0].id === value.settings[0].vendorCategory[0].id &&
+                       this.categoryArray[0].id === value.settings[0].category[0].id
+                   )
+                   {
+                      count++;
+                   }
+               }.bind(this));
+
+               if(count <= 0 || this.editCorrelationId !== 0)
+               {
+                   this._statsDataService.getRestCallData(
+                       'markets/panda-black/vendor-attribute/' + this.vendorCategoryArray[0].id
+                   ).subscribe((response:any) => {
+                       if(!isNullOrUndefined(response)) {
+                           let n:number = 0;
+                           for(let k in response) {
+                               if(response.hasOwnProperty(k)) {
+                                   if(response[k].required === true) {
+                                       this.categoryAttributes[n++] = response[k].name + '-PB-' + k;
+                                   }
+                               }
+                           }
+                           this.openOverlayForAttributeMapping();
+                           this.attributeMapping(this.vendorCategoryArray[0].id);
+                       }
+                   });
+
+                   this.vendorCategoriesCorrelation = {
+                       category: this.categoryArray,
+                       vendorCategory: this.vendorCategoryArray,
+                       attributes: this.categoryAttributes
+                   };
+                   if(this.vendorCategoriesCorrelationArray.length > 0) {
+                       this.vendorCategoriesCorrelationArray = [];
+                   }
+                   this.vendorCategoriesCorrelationArray.push(this.vendorCategoriesCorrelation);
+                   this.categoryAttributes = [];
+
+               } else {
+                   this.alert.addAlert({
+                       msg:              'This Category Mapping is already existed',
+                       type:             'warning',
+                       dismissOnTimeout: 5000
+                   });
+               }
+           }
+        }
+    }
+
+    private createCorrelationMapping():void
+    {
+        if(this.editCorrelationId === 0) {
+            this._statsDataService.postRestCallData(this.vendorCategoriesCorrelationArray).subscribe((response:any) => {
+            });
+            this.vendorCategoryArray.splice(0, 1);
+            this.categoryArray.splice(0, 1);
+            this.categoryExtraction();
+        } else {
+            this._statsDataService.editCorrelation(this.vendorCategoriesCorrelationArray, this.editCorrelationId).subscribe((response:any) => {
+            });
+            this.vendorCategoryArray.splice(0, 1);
+            this.categoryArray.splice(0, 1);
+            this.editCorrelationId = 0;
+            this.categoryExtraction();
+        }
+    }
+
+    private attributeMapping(attributeData:any):void
+    {
+        this._primaryButtonInterface = {
+            icon:          'icon-confirm',
+            caption:       'Create PandaBlack Attributes.',
+            isDisabled:    false,
+            clickFunction: ():void => this.createPBAttribute(attributeData)
+        };
+    }
+
+    private createPBAttribute(id:any):void
+    {
+        this._statsDataService.postAttribute(id).subscribe((response:any) => {
+        });
+        this.alert.addAlert({
+            msg:              'Attributes are created',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
+        this.createCorrelationMapping();
+        this.alert.addAlert({
+            msg:              'Category Mapping is created',
+            type:             'success',
+            dismissOnTimeout: 5000
+        });
+    }
+
+    private deleteAllCorrelations():void
+    {
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlations/delete').subscribe((response:any) => {
+        });
+        this.categoryExtraction();
+    }
+
+    private deleteCorrelation(correlationId:number):void
+    {
+        this._statsDataService.deleteRestCallData('markets/panda-black/correlation/delete/', correlationId).subscribe((response:any) => {
+        });
+        this.categoryExtraction();
+    }
+
+    private editCorrelationInfo(id:number):void
+    {
+        this.categoryExtraction();
+        this.editCorrelationId = id;
     }
 }

@@ -3,75 +3,93 @@
     <div class="row">
         <div class="col-sm-12">
             <terra-base-toolbar>
-                <terra-button inputIcon="icon-refresh"
+                <terra-button inputIcon="icon-add"
                               inputTooltipText="fetch data"
                               inputTooltipPlacement="right"
-                              (outputClicked)="updateData()">
+                              (outputClicked)="categoryExtraction()">
+                </terra-button>
+                <terra-button inputIcon="icon-delete"
+                              inputTooltipText="delete all correlations"
+                              inputIsSecondary="true"
+                              inputTooltipPlacement="right"
+                              (outputClicked)="deleteAllCorrelations()">
+                </terra-button>
+                <terra-button inputCaption="Send Products to PandaBlack"
+                              (outputClicked)="sendProducts()">
+                </terra-button>
+                <terra-button inputIcon='icon-refresh'
+                              inputTooltipPlacement="left"
+                              (outputClicked)="categoryExtraction()">
                 </terra-button>
             </terra-base-toolbar>
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-12">
-            <terra-portlet inputPortletHeader="User information">
-                <div class="row content">
-                    <div class="col-xs-2">
-                        <div class="user-information-container">
-                            <strong>Username:</strong>
-                            <br>
-                            <strong>Email:</strong>
-                            <br>
-                            <strong>Plugins:</strong>
-                        </div>
-                    </div>
-                    <div class="col-xs-3">
-                        <div *ngIf="(user | json) != '{}'" class="user-information-container">
-                            <span>{{user?.username}}</span>
-                            <br>
-                            <span>{{user?.email}}</span>
-                            <br>
-                            <span>{{plugins?.length}}</span>
-                        </div>
-                    </div>
-                </div>
-            </terra-portlet>
-        </div>
+        <terra-overlay #viewChildOverlayWithPrimaryButton
+                       inputOverlayTitle="Attribute Mapping"
+                       [inputIsLarge]="true"
+                       [inputPrimaryButtonInterface]="_primaryButtonInterface">
+        </terra-overlay>
     </div>
     <div class="row">
-        <div class="col-sm-6">
-            <terra-portlet inputPortletHeader="Installed webstores">
-                <div class="content">
-                    <table>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                        </tr>
-                        <tr *ngFor="let store of webStores">
-                            <td>{{store.id}}</td>
-                            <td>{{store.name}}</td>
-                            <td>{{store.type}}</td>
-                        </tr>
-                    </table>
+        <div class="col-xs-12 col-md-12 col-lg-12">
+            <div *ngFor="let correlation of categoryMapping;">
+                <terra-info-box>
+                    <div body class="row">
+                        <div class="col-xs-12 col-md-6 col-lg-6 category-mapping">
+                            PandaBlack category<br>
+                            <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
+                            <br><br>
+                            PlentyMarket category<br>
+                            <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
+                        </div>
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            Attributes<br>
+                            <div *ngFor="let attribute of correlation.settings[0].attributes">
+                                <b>{{ attribute }}</b><br>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div buttons>
+                        <terra-button inputIcon="icon-category_edit"
+                                      inputIsPrimary="true"
+                                      inputTooltipText="Edit Category Mapping"
+                                      (outputClicked)="editCorrelationInfo(correlation.id)">
+                        </terra-button>
+                        <terra-button inputIcon = "icon-delete"
+                                      inputIsSecondary = "true"
+                                      inputTooltipText="Delete Category Mapping"
+                                      (outputClicked)="deleteCorrelation(correlation.id)">
+                        </terra-button>
+                    </div>
+                </terra-info-box>
+                <div *ngIf="editCorrelationId === correlation.id;">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            <terra-portlet>
+                                <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
+                            </terra-portlet>
+                        </div>
+                        <div class="col-xs-12 col-md-6 col-lg-6">
+                            <terra-portlet>
+                                <terra-tree [inputLeafList]="categories"></terra-tree>
+                            </terra-portlet>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" *ngIf="editCorrelationId === 0;">
+        <div class="col-xs-12 col-md-6 col-lg-6">
+            <terra-portlet>
+                <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
             </terra-portlet>
         </div>
-        <div class="col-sm-6">
-            <terra-portlet inputPortletHeader="Installed plugins" [inputIsCollapsable]="true">
-                <div class="content">
-                    <table>
-                        <tr>
-                            <th>Id</th>
-                            <th>Name</th>
-                            <th>Created at</th>
-                        </tr>
-                        <tr *ngFor="let plugin of plugins">
-                            <td>{{plugin.id}}</td>
-                            <td>{{plugin.name}}</td>
-                            <td>{{plugin.created_at}}</td>
-                        </tr>
-                    </table>
-                </div>
+        <div class="col-xs-12 col-md-6 col-lg-6">
+            <terra-portlet>
+                <terra-tree [inputLeafList]="categories"></terra-tree>
             </terra-portlet>
         </div>
     </div>

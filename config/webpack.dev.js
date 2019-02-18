@@ -45,6 +45,9 @@ module.exports = function (options) {
         devServer: {
             port: METADATA.port,
             host: METADATA.host,
+            headers: {
+                "Access-Control-Allow-Origin": "*"
+            },
             historyApiFallback: true,
             watchOptions: {
                 aggregateTimeout: 300,
