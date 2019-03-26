@@ -1,12 +1,18 @@
 <terra-base-toolbar>
     <terra-button inputIcon="icon-plugin_productive"
-                  inputTooltipText="login url"
+                  inputTooltipText="Authenticate to Panda Black"
                   inputTooltipPlacement="right"
                   inputIsTertiary="true"
+                  inputCaption="authenticate"
                   (outputClicked)="getLoginUrl()">
     </terra-button>
 </terra-base-toolbar>
 
-<div *ngIf="this._expireTime">
-    <p>Your token will be expired by {{this._expireTime}}</p>
-</div>
+<terra-info-box *ngIf="this._expireTime">
+    <span body>Your token will be expired by {{this._expireTime}}.</span>
+</terra-info-box>
+
+
+<terra-info-box *ngIf="!this._expireTime">
+    <span body>Please authenticate to Panda Black.</span>
+</terra-info-box>
