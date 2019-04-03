@@ -240,6 +240,18 @@ export class StatsViewComponent extends Translation implements OnInit
             isActive: false,
             clickFunction:  ():void =>
             {
+                this._statsDataService.getRestCallData('markets/panda-black/child-categories/' + category.id).subscribe((response:any) => {
+                    if(!isNullOrUndefined(response) && response.length > 0)
+                    {
+                        leafData.subLeafList = [];
+                        leafData.isActive = true;
+                        leafData.icon = 'icon-folder';
+                        response.forEach((child:CategoriesInterface) => {
+                            leafData.subLeafList.push(this.getChildCategories(child));
+                        });
+                    }
+                });
+
                 this._statsDataService.getRestCallData('markets/panda-black/parent-categories/' + category.id).subscribe((response:any) =>
                 {
                     this.categoryArray = [];
@@ -262,10 +274,6 @@ export class StatsViewComponent extends Translation implements OnInit
         {
             leafData.icon = 'icon-folder';
             leafData.subLeafList = [];
-            category.child.forEach((child:any) =>
-            {
-                leafData.subLeafList.push(this.getChildCategories(child));
-            });
         }
         return leafData;
     }
