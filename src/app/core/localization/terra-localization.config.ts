@@ -28,15 +28,18 @@ function getL10nConfig():L10nConfig
     }
 
     let terraComponentsLocalePrefix:string = null;
+    let prefix:string = null;
 
 
     // Definitions for i18n
     if(process.env.ENV === 'production')
     {
+        prefix = 'assets/lang/locale-';
         terraComponentsLocalePrefix = 'assets/lang/terra-components/locale-';
     }
     else
     {
+        prefix = 'src/app/assets/lang/locale-';
         terraComponentsLocalePrefix = 'node_modules/@plentymarkets/terra-components/app/assets/lang/locale-';
     }
 
@@ -57,6 +60,10 @@ function getL10nConfig():L10nConfig
         },
         translation: {
             providers:            [
+                {
+                    type: ProviderType.Static,
+                    prefix: prefix
+                },
                 {
                     type:   ProviderType.Static,
                     prefix: terraComponentsLocalePrefix

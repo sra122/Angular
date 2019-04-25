@@ -4,8 +4,8 @@
         <div class="col-sm-12">
             <terra-base-toolbar>
                 <terra-button inputIcon="icon-delete"
-                              inputTooltipText="Deletes all category mappings between plentymarkets and Panda Black"
-                              inputCaption="Delete all Mappings"
+                              inputTooltipText = "Deletes all category mappings between plentymarkets and Panda Black"
+                              [inputCaption] = "'stats-view.deleteMapping' | translate:lang"
                               inputIsSecondary="true"
                               inputTooltipPlacement="right"
                               (outputClicked)="deleteAllCorrelations()">
@@ -76,7 +76,7 @@
     </div>
     <div class="row" *ngIf="editCorrelationId === 0;">
         <div class="col-xs-12 col-md-6 col-lg-6">
-            Please select a Panda Black category:<br>
+            {{ 'stats-view.selectPandaBlackMessage' | translate:lang }}:<br>
             <terra-portlet>
                 <terra-tree [inputLeafList]="vendorCategories"></terra-tree>
             </terra-portlet>

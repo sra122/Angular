@@ -11,7 +11,7 @@ import {
 import { Translation, TranslationService } from 'angular-l10n';
 import { VendorCategoriesService } from '../../core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 
-import { isNullOrUndefined } from 'util';
+import { isNullOrUndefined, isObject } from 'util';
 import { LoadingConfig } from '../../core/config/loading.config';
 
 interface CategoriesInterface
@@ -190,12 +190,54 @@ export class StatsViewComponent extends Translation implements OnInit
     public sendProducts():void
     {
         this._statsDataService.postPbProducts('markets/panda-black/products-data').subscribe((response:any) => {
-        });
+            if(!isNullOrUndefined(response)) {
+                let unfullfilledProducts:any = response.unfulfilledProducts;
+                if(unfullfilledProducts.missingAttributeProducts.length > 0) {
+                    this.alert.addAlert( {
+                        msg:   'Der Artikel mit der Varianten' + (unfullfilledProducts.missingAttributeProducts.length === 1 ? 'Id ' : 'Ids ') + unfullfilledProducts.missingAttributeProducts.join() + ' verfügt nicht über alle benötigten Attributzuweisungen.  Bitte überprüfen Sie den besagten Artikel',
+                        type:  'danger',
+                        dismissOnTimeout: 50000
+                    });
+                }
+                if(unfullfilledProducts.emptyAttributeProducts.length > 0) {
+                    this.alert.addAlert( {
+                       msg:   'Der Artikel mit der Varianten' + (unfullfilledProducts.emptyAttributeProducts.length === 1 ? ' Id ' : ' Ids ') + unfullfilledProducts.emptyAttributeProducts.join() + ' hat ungemappte Attribute.',
+                       type:  'danger',
+                       dismissOnTimeout: 50000
+                    });
+                }
+                if(unfullfilledProducts.noStockProducts.length > 0) {
+                    this.alert.addAlert( {
+                        msg:   'Der Artikel mit der Varianten' + (unfullfilledProducts.noStockProducts.length === 1 ? 'Id ' : 'Ids ') + unfullfilledProducts.noStockProducts.join() + ' hat keine stock. Bitte tragen Sie diese nach, um das Produkt an PANDA.BLACK zu senden.',
+                        type:  'danger',
+                        dismissOnTimeout: 50000
+                    });
+                }
 
-        this.alert.addAlert({
-            msg:              'Products are sent to PandaBlack Successfully.',
-            type:             'success',
-            dismissOnTimeout: 5000
+                if(unfullfilledProducts.noAsinProducts.length > 0) {
+                    this.alert.addAlert( {
+                        msg:   'Der Artikel mit der Varianten' + (unfullfilledProducts.noAsinProducts.length === 1 ? 'Id ' : 'Ids ') + unfullfilledProducts.noAsinProducts.join() + ' hat keine ASIN. Bitte tragen Sie diese nach, um das Produkt an PANDA.BLACK zu senden.',
+                        type:  'danger',
+                        dismissOnTimeout: 50000
+                    });
+                }
+
+                if(response.validProductDetails.length > 0) {
+                    for(let validProduct of response.validProductDetails) {
+                        this.alert.addAlert( {
+                            msg:   'Der Artikel mit der VariantenId ' + validProduct.product_id + ' wird erfolgreich an PANDA.BLACK gesendet.',
+                            type:  'success',
+                            dismissOnTimeout: 10000
+                        });
+                    }
+                } else {
+                    this.alert.addAlert({
+                        msg: 'Products are not sent to PANDA.BLACK',
+                        type: 'danger',
+                        dismissOnTimeout: 50000
+                    });
+                }
+            }
         });
     }
 
@@ -236,7 +278,6 @@ export class StatsViewComponent extends Translation implements OnInit
             id: category.id,
             icon:null,
             subLeafList:null,
-            isOpen: false,
             isActive: false,
             clickFunction:  ():void =>
             {
@@ -244,7 +285,6 @@ export class StatsViewComponent extends Translation implements OnInit
                     if(!isNullOrUndefined(response) && response.length > 0)
                     {
                         leafData.subLeafList = [];
-                        leafData.isActive = true;
                         leafData.icon = 'icon-folder';
                         response.forEach((child:CategoriesInterface) => {
                             leafData.subLeafList.push(this.getChildCategories(child));
@@ -258,7 +298,7 @@ export class StatsViewComponent extends Translation implements OnInit
                     this.categoryArray.push(response);
                     if(this.vendorOnlyParentCategorySelection) {
                         this.alert.addAlert({
-                            msg:              'Please Select Child Category from PandaBlack Category Tree',
+                            msg:              'Bitte wählen sie eine Unterkategorie aus dem PANDA.BLACK Kategoriebaum.',
                             type:             'warning',
                             dismissOnTimeout: 5000
                         });
@@ -394,7 +434,7 @@ export class StatsViewComponent extends Translation implements OnInit
 
                } else {
                    this.alert.addAlert({
-                       msg:              'This Category Mapping is already existed',
+                       msg:              'Dieses Kategorie Mapping existiert bereits.',
                        type:             'warning',
                        dismissOnTimeout: 5000
                    });
@@ -435,14 +475,9 @@ export class StatsViewComponent extends Translation implements OnInit
     {
         this._statsDataService.postAttribute(id).subscribe((response:any) => {
         });
-        this.alert.addAlert({
-            msg:              'Attributes are created',
-            type:             'success',
-            dismissOnTimeout: 5000
-        });
         this.createCorrelationMapping();
         this.alert.addAlert({
-            msg:              'Category Mapping is created',
+            msg:              'Die Kategoriezuordnung wird erstellt. Bitte ordnen Sie alle Attribute zu, die für die Variation erforderlich sind.',
             type:             'success',
             dismissOnTimeout: 5000
         });
