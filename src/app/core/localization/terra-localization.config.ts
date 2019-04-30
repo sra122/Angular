@@ -13,7 +13,7 @@ function getL10nConfig():L10nConfig
 
     if(langInLocalStorage !== null)
     {
-        lang = langInLocalStorage;
+        lang = 'de';
     }
     else
     {
@@ -21,7 +21,7 @@ function getL10nConfig():L10nConfig
 
         if(lang !== 'de' && lang !== 'en')
         {
-            lang = 'en';
+            lang = 'de';
         }
 
         localStorage.setItem('plentymarkets_lang_', lang);

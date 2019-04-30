@@ -232,7 +232,7 @@ export class StatsViewComponent extends Translation implements OnInit
                     }
                 } else {
                     this.alert.addAlert({
-                        msg: 'Products are not sent to PANDA.BLACK',
+                        msg:  this.translation.translate('stats-view.productsNotSentMessage'),
                         type: 'danger',
                         dismissOnTimeout: 50000
                     });
@@ -465,7 +465,7 @@ export class StatsViewComponent extends Translation implements OnInit
     {
         this._primaryButtonInterface = {
             icon:          'icon-confirm',
-            caption:       'Create PandaBlack Attributes.',
+            caption:       this.translation.translate('stats-view.attributeMappingButton'),
             isDisabled:    false,
             clickFunction: ():void => this.createPBAttribute(attributeData)
         };

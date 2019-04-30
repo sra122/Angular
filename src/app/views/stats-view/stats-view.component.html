@@ -4,18 +4,18 @@
         <div class="col-sm-12">
             <terra-base-toolbar>
                 <terra-button inputIcon="icon-delete"
-                              inputTooltipText = "Deletes all category mappings between plentymarkets and Panda Black"
+                              [inputTooltipText] = "'stats-view.deleteMappingToolTip' | translate:lang"
                               [inputCaption] = "'stats-view.deleteMapping' | translate:lang"
                               inputIsSecondary="true"
                               inputTooltipPlacement="right"
                               (outputClicked)="deleteAllCorrelations()">
                 </terra-button>
-                <terra-button inputCaption="Send Products to PandaBlack"
+                <terra-button [inputCaption]="'stats-view.sendProductsToPandaBlack' | translate:lang"
                               (outputClicked)="sendProducts()">
                 </terra-button>
                 <terra-button inputIcon='icon-refresh'
-                              inputTooltipText="Load / Refresh available Panda Black Categories"
-                              inputCaption="Refresh"
+                              [inputTooltipText]="'stats-view.refreshToolTip' | translate:lang"
+                              [inputCaption]="'stats-view.refresh' | translate:lang"
                               inputTooltipPlacement="left"
                               (outputClicked)="categoryExtraction()">
                 </terra-button>
@@ -24,7 +24,7 @@
     </div>
     <div class="row">
         <terra-overlay #viewChildOverlayWithPrimaryButton
-                       inputOverlayTitle="Attribute Mapping"
+                       [inputOverlayTitle]="'stats-view.attributeMapping' | translate:lang"
                        [inputIsLarge]="true"
                        [inputPrimaryButtonInterface]="_primaryButtonInterface">
         </terra-overlay>
@@ -35,14 +35,14 @@
                 <terra-info-box>
                     <div body class="row">
                         <div class="col-xs-12 col-md-6 col-lg-6 category-mapping">
-                            Panda Black category:<br>
+                            {{ 'stats-view.pandaBlackCategoryTitle' | translate:lang }}:<br>
                             <b>{{ correlation.settings[0].vendorCategory[0].name }}</b>
                             <br><br>
-                            plentymarkets category:<br>
+                            {{ 'stats-view.plentyMarketCategoryTitle' | translate:lang }}:<br>
                             <b>{{ correlation.settings[0].category[0].details[0].name }}</b>
                         </div>
                         <div class="col-xs-12 col-md-6 col-lg-6">
-                            Required product variation attributes for this category:<br>
+                            {{ 'stats-view.requiredAttributesTitle' | translate:lang }}:<br>
                             <div *ngFor="let attribute of correlation.settings[0].attributes">
                                 <b>{{ attribute }}</b><br>
                             </div>
@@ -52,7 +52,7 @@
                     <div buttons>
                         <terra-button inputIcon = "icon-delete"
                                       inputIsSecondary = "true"
-                                      inputTooltipText="Delete Category Mapping"
+                                      [inputTooltipText]="'stats-view.deleteCategoryMapping' | translate:lang"
                                       (outputClicked)="deleteCorrelation(correlation.id)">
                         </terra-button>
                     </div>
@@ -82,7 +82,7 @@
             </terra-portlet>
         </div>
         <div class="col-xs-12 col-md-6 col-lg-6">
-            Map to this plentymarkets category:<br>
+            {{ 'stats-view.selectPlentyMarketMessage' | translate:lang }}:<br>
             <terra-portlet>
                 <terra-tree [inputLeafList]="categories"></terra-tree>
             </terra-portlet>
