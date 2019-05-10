@@ -1,0 +1,11 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div *ngFor="let missingProducts of productStatus">
+                <div *ngFor="let product of missingProducts;">
+                    <div>{{product}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

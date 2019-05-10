@@ -1,0 +1,32 @@
+<terra-base-toolbar>
+    <terra-button inputIcon="icon-save"
+                  inputTooltipText="Save Mapping"
+                  inputTooltipPlacement="right"
+                  inputIsTertiary="true"
+                  inputCaption=" Properties Mapping"
+                  (outputClicked)="savePropertyMapping()">
+    </terra-button>
+</terra-base-toolbar>
+<terra-portlet inputPortletHeader="Attribute Mapping">
+    <div class="container" *ngFor="let key of testArray">
+        <div class="row">
+            <div class="col-lg-3">{{key.name}}</div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3" *ngIf="key.value !== undefined">
+                <terra-select-box
+                        inputName="property"
+                        [inputListBoxValues]="_selectableOptionTypesList"
+                        [(ngModel)]="key.value"
+                        (ngModelChange)="onSelectChange($event, key.name)">
+                </terra-select-box>
+            </div>
+            <div class="col-lg-3" *ngIf="key.value === undefined">
+                <terra-select-box
+                        inputName="property"
+                        [inputListBoxValues]="_selectableOptionTypesList"
+                        [(ngModel)]="_pickedValue[key.name]">
+                </terra-select-box>
+            </div>
+        </div>
+    </div>
+</terra-portlet>

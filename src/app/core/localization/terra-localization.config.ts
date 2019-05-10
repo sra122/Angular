@@ -13,7 +13,7 @@ function getL10nConfig():L10nConfig
 
     if(langInLocalStorage !== null)
     {
-        lang = 'de';
+        lang = 'en';
     }
     else
     {

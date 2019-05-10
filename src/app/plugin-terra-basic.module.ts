@@ -13,8 +13,10 @@ import { l10nConfig } from './core/localization/terra-localization.config';
 import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
+import { StatusComponent } from './views/status/status.component';
 import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 import { LoadingConfig } from './core/config/loading.config';
+import { MappingComponent } from './views/mapping/mapping.component';
 
 
 @NgModule({
@@ -24,12 +26,14 @@ import { LoadingConfig } from './core/config/loading.config';
         FormsModule,
         HttpClientModule,
         TranslationModule.forRoot(l10nConfig),
-        TerraComponentsModule.forRoot()
+        TerraComponentsModule.forRoot(),
     ],
     declarations: [
         PluginTerraBasicComponent,
         StatsViewComponent,
-        ItoolsComponent
+        ItoolsComponent,
+        StatusComponent,
+        MappingComponent
     ],
     providers:    [
         LoadingConfig,
