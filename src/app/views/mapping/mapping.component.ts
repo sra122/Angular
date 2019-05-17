@@ -56,7 +56,7 @@ export class MappingComponent extends Translation implements OnInit
 
     public ngOnInit():void
     {
-        this.getProperties();
+        //this.getProperties();
         this._selectableOptionTypesList.push(
             {
               value: 'default',
