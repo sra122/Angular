@@ -473,14 +473,15 @@ export class StatsViewComponent extends Translation implements OnInit
 
     private createPBAttribute(id:any):void
     {
-        this._statsDataService.postAttribute(id).subscribe((response:any) => {
+        this.createCorrelationMapping();
+        /*this._statsDataService.postAttribute(id).subscribe((response:any) => {
         });
         this.createCorrelationMapping();
         this.alert.addAlert({
             msg:              'Die Kategoriezuordnung wird erstellt. Bitte ordnen Sie alle Attribute zu, die für die Variation erforderlich sind.',
             type:             'success',
             dismissOnTimeout: 5000
-        });
+        });*/
     }
 
     private deleteAllCorrelations():void

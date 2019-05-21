@@ -15,6 +15,20 @@ interface CustomPropertyInterface
 {
     name?:any;
     value?:any;
+    category?:any;
+}
+
+interface CorrelationCatergoryInterface
+{
+    name?:any;
+    id?:number;
+}
+
+interface PickedValueInterface
+{
+    id?:number;
+    pbAttribute?:any;
+    pmAttribute?:any;
 }
 
 @Component({
@@ -28,17 +42,19 @@ export class MappingComponent extends Translation implements OnInit
     @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
     @ViewChild('viewChildOverlayStatic') public viewChildOverlayStatic:TerraOverlayComponent;
     public productStatus:any;
-    public testArray:Array<CustomPropertyInterface> = [];
-    public _pickedValue:any;
+    public vendorAttributes:Array<CustomPropertyInterface> = [];
+    public vendorAttributeValues:Array<CustomPropertyInterface> = [];
+    public _pickedValue:Array<PickedValueInterface> = [];
     public _mappedAttributes:Array<CustomPropertyInterface> = [];
+    public correlationCategories:Array<CorrelationCatergoryInterface> = [];
 
-    public _expireTime:any;
     private _isLoading:boolean;
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
 
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
+    private _selectablePropertyValueList:Array<TerraSelectBoxValueInterface> = [];
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService)
@@ -49,34 +65,31 @@ export class MappingComponent extends Translation implements OnInit
         this._alert = TerraAlertComponent.getInstance();
 
         this._lastUiId = 0;
-        this._pickedValue = {};
         this.productStatus = '';
 
     }
 
     public ngOnInit():void
     {
-        //this.getProperties();
         this._selectableOptionTypesList.push(
             {
-              value: 'default',
-              caption: 'select one'
-            },
-            {
-                value: 'marken',
-                caption: 'Marken'
-            },
-            {
-                value: 'gewicht',
-                caption:'Gewicht'
-            },
-            {
-                value: 'farbe',
-                caption:'Farbe'
+                value: 'default',
+                caption: 'select one'
             }
         );
 
-        this.testArray.push(
+        this._selectablePropertyValueList.push(
+            {
+                value: 'default',
+                caption: 'select one'
+            }
+        );
+
+        this.getVendorProperties();
+        this.getPMProperties();
+        this.getPMPropertyValues();
+
+        /*this.testArray.push(
             {
                 name: 'Brand',
                 value: 'marken'
@@ -87,7 +100,7 @@ export class MappingComponent extends Translation implements OnInit
             {
                 name: 'Weight'
             }
-        );
+        );*/
 
         this._mappedAttributes.push(
             {
@@ -95,22 +108,84 @@ export class MappingComponent extends Translation implements OnInit
                 value: 'marken'
             }
         );
+    }
+
+    public savePropertyMapping(categoryId:number):any
+    {
+        console.log(categoryId);
         console.log(this._pickedValue);
     }
 
-    public savePropertyMapping():any
-    {
-        console.log(this._pickedValue);
+    public onSelectChange(event:any, name:any, categoryId:number):any{
+        this._pickedValue.push({
+           id: categoryId,
+           pbAttribute : event,
+           pmAttribute : name
+        });
     }
 
-    public onSelectChange(event:any, name:any):any{
-        this._pickedValue[name] = event;
+    private getVendorProperties():any
+    {
+        this._statsDataService.getRestCallData('markets/panda-black/correlations').subscribe((response:any) =>
+        {
+            for(let category of response.entries)
+            {
+                let vendorId:any = category.settings[0].vendorCategory[0].id;
+
+                this.correlationCategories.push({
+                    name: category.settings[0].vendorCategory[0].name,
+                    id: category.settings[0].vendorCategory[0].id
+                });
+
+                this._statsDataService.getRestCallData(
+                    'markets/panda-black/vendor-attribute/' + vendorId ).subscribe((attributes:any) => {
+                    for(let k in attributes) {
+                        if(attributes.hasOwnProperty(k)) {
+                            if(attributes[k].required) {
+                                this.vendorAttributes.push({
+                                    name: attributes[k].name,
+                                    category: category.settings[0].vendorCategory[0].name
+                                });
+                                for(let attributeValue of attributes[k].values) {
+                                    this.vendorAttributeValues.push({
+                                        name: attributeValue,
+                                        category: category.settings[0].vendorCategory[0].name
+                                    });
+                                    console.log(attributeValue);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
     }
 
-    private getProperties():any
+
+    private getPMProperties():any
     {
-        this._statsDataService.getRestCallData('markets/panda-black/vendor-attribute').subscribe((response:any) => {
-           console.log(response);
+        this._statsDataService.getRestCallData('markets/panda-black/pm-properties').subscribe((response:any) =>
+        {
+            for(let property of response) {
+                this._selectableOptionTypesList.push({
+                    value: property,
+                    caption: property
+                });
+            }
+        });
+    }
+
+
+    private getPMPropertyValues():any
+    {
+        this._statsDataService.getRestCallData('markets/panda-black/pm-property-values').subscribe((response:any) => {
+
+            for(let propertyValue of response) {
+                this._selectablePropertyValueList.push({
+                    value: propertyValue,
+                    caption: propertyValue
+                });
+            }
         });
     }
 }

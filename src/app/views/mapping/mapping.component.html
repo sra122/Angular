@@ -1,32 +1,64 @@
-<terra-base-toolbar>
-    <terra-button inputIcon="icon-save"
-                  inputTooltipText="Save Mapping"
-                  inputTooltipPlacement="right"
-                  inputIsTertiary="true"
-                  inputCaption=" Properties Mapping"
-                  (outputClicked)="savePropertyMapping()">
-    </terra-button>
-</terra-base-toolbar>
-<terra-portlet inputPortletHeader="Attribute Mapping">
-    <div class="container" *ngFor="let key of testArray">
-        <div class="row">
-            <div class="col-lg-3">{{key.name}}</div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-3" *ngIf="key.value !== undefined">
-                <terra-select-box
-                        inputName="property"
-                        [inputListBoxValues]="_selectableOptionTypesList"
-                        [(ngModel)]="key.value"
-                        (ngModelChange)="onSelectChange($event, key.name)">
-                </terra-select-box>
-            </div>
-            <div class="col-lg-3" *ngIf="key.value === undefined">
-                <terra-select-box
-                        inputName="property"
-                        [inputListBoxValues]="_selectableOptionTypesList"
-                        [(ngModel)]="_pickedValue[key.name]">
-                </terra-select-box>
+<terra-portlet>
+    <div *ngFor="let correlationCategory of correlationCategories">
+        <br><span>PB Category --> <b>{{ correlationCategory.name }}</b></span><br>
+        <span>Property Mapping</span><br>
+        <div class="container" *ngFor="let vendorAttribute of vendorAttributes">
+            <div class="row" *ngIf="vendorAttribute.category === correlationCategory.name">
+                <div class="col-lg-3">{{vendorAttribute.name}}</div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3" *ngIf="vendorAttribute.value !== undefined">
+                    <terra-select-box
+                            inputName="property"
+                            [inputListBoxValues]="_selectableOptionTypesList"
+                            [(ngModel)]="vendorAttribute.value"
+                            (ngModelChange)="onSelectChange($event, vendorAttribute.name, correlationCategory.id)">
+                    </terra-select-box>
+                </div>
+                <div class="col-lg-3" *ngIf="vendorAttribute.value === undefined">
+                    <terra-select-box
+                            inputName="property"
+                            [inputListBoxValues]="_selectableOptionTypesList"
+                            [(ngModel)]="_pickedValue[vendorAttribute.name]">
+                    </terra-select-box>
+                </div>
             </div>
         </div>
+        <!--<br><span>Property Value Mapping</span><br>
+        <div class="container" *ngFor="let vendorAttributeValue of vendorAttributeValues">
+            <div class="row" *ngIf="vendorAttributeValue.category === correlationCategory.name">
+                <div class="col-lg-3">{{vendorAttributeValue.name}}</div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3" *ngIf="vendorAttributeValue.value !== undefined">
+                    <terra-select-box
+                            inputName="property value"
+                            [inputListBoxValues]="_selectablePropertyValueList"
+                            [(ngModel)]="vendorAttributeValue.value"
+                            (ngModelChange)="onSelectChange($event, vendorAttributeValue.name, correlationCategory.id)">
+                    </terra-select-box>
+                </div>
+                <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
+                    <terra-select-box
+                            inputName="property"
+                            [inputListBoxValues]="_selectablePropertyValueList"
+                            [(ngModel)]="_pickedValue[vendorAttributeValue.name]">
+                    </terra-select-box>
+                </div>
+            </div>
+        </div>-->
+        <div class="row">
+            <div class="col-lg-3"></div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3"></div>
+            <div class="col-lg-1">
+                <terra-button inputIcon="icon-save"
+                              inputTooltipText="Save Mapping"
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=" Properties Mapping"
+                              (outputClicked)="savePropertyMapping(correlationCategory.id)">
+                </terra-button>
+            </div>
+        </div>
+        <br>
     </div>
 </terra-portlet>
