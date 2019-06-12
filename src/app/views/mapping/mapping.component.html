@@ -1,47 +1,102 @@
 <terra-portlet>
-    <div *ngFor="let correlationCategory of correlationCategories">
-        <br><span>PB Category --> <b>{{ correlationCategory.name }}</b></span><br>
-        <span>Property Mapping</span><br>
+    <b>Category Selection</b>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-7">
+                <terra-suggestion-box
+                        inputName="Category Selection"
+                        [inputListBoxValues]="_categoryOptionTypesList"
+                        [(ngModel)]="_pickedCategoryValue"
+                        (ngModelChange)="onCategoryChange()">
+                </terra-suggestion-box>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-10"></div>
+            <div class="col-lg-1">
+                <terra-button inputIcon="icon-save"
+                              inputTooltipText="Create PB Category as Eigenschaften and Fetch the Attributes for Mapping."
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=" Proceed Further"
+                              (outputClicked)="savePBCategoryAsProperty()">
+                </terra-button>
+            </div>
+        </div>
+
+    </div>
+</terra-portlet>
+
+
+<terra-portlet>
+    <div *ngIf="_requestedForMapping">
+        <span><b>Property Mapping</b></span><br>
         <div class="container" *ngFor="let vendorAttribute of vendorAttributes">
-            <div class="row" *ngIf="vendorAttribute.category === correlationCategory.name">
+            <div class="row">
                 <div class="col-lg-3">{{vendorAttribute.name}}</div>
                 <div class="col-lg-1"></div>
+                <!--If user already made a selection -->
                 <div class="col-lg-3" *ngIf="vendorAttribute.value !== undefined">
-                    <terra-select-box
+                    <terra-suggestion-box
                             inputName="property"
                             [inputListBoxValues]="_selectableOptionTypesList"
                             [(ngModel)]="vendorAttribute.value"
-                            (ngModelChange)="onSelectChange($event, vendorAttribute.name, correlationCategory.id)">
-                    </terra-select-box>
+                            (ngModelChange)="onSelectChange($event, vendorAttribute.name)">
+                    </terra-suggestion-box>
                 </div>
+                <!-- If user didn't made a selection -->
                 <div class="col-lg-3" *ngIf="vendorAttribute.value === undefined">
-                    <terra-select-box
+                    <terra-suggestion-box
                             inputName="property"
                             [inputListBoxValues]="_selectableOptionTypesList"
                             [(ngModel)]="_pickedValue[vendorAttribute.name]">
-                    </terra-select-box>
+                    </terra-suggestion-box>
                 </div>
             </div>
+            <div class="container" *ngFor="let vendorAttributeValue of vendorAttributeValues">
+                <span *ngIf="vendorAttributeValue.parentAttribute === vendorAttribute.name">
+                    <div class="row">
+                        <div class="col-lg-3">{{vendorAttributeValue.name}}</div>
+                        <div class="col-lg-1"></div>
+                        <div class="col-lg-3" *ngIf="vendorAttributeValue.value !== undefined">
+                            <terra-suggestion-box
+                                    inputName="property value"
+                                    [inputListBoxValues]="_selectablePropertyValueList"
+                                    [(ngModel)]="vendorAttributeValue.value"
+                                    (ngModelChange)="onSelectChange($event, vendorAttributeValue.name)">
+                            </terra-suggestion-box>
+                        </div>
+                        <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
+                            <terra-suggestion-box
+                                    inputName="property value"
+                                    [inputListBoxValues]="_selectablePropertyValueList"
+                                    [(ngModel)]="_pickedValue[vendorAttributeValue.name]">
+                            </terra-suggestion-box>
+                        </div>
+                    </div>
+                </span>
+            </div>
+            <br><hr><br>
         </div>
         <!--<br><span>Property Value Mapping</span><br>
         <div class="container" *ngFor="let vendorAttributeValue of vendorAttributeValues">
-            <div class="row" *ngIf="vendorAttributeValue.category === correlationCategory.name">
+            <div class="row">
                 <div class="col-lg-3">{{vendorAttributeValue.name}}</div>
                 <div class="col-lg-1"></div>
                 <div class="col-lg-3" *ngIf="vendorAttributeValue.value !== undefined">
-                    <terra-select-box
+                    <terra-suggestion-box
                             inputName="property value"
                             [inputListBoxValues]="_selectablePropertyValueList"
                             [(ngModel)]="vendorAttributeValue.value"
-                            (ngModelChange)="onSelectChange($event, vendorAttributeValue.name, correlationCategory.id)">
-                    </terra-select-box>
+                            (ngModelChange)="onSelectChange($event, vendorAttributeValue.name)">
+                    </terra-suggestion-box>
                 </div>
                 <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
-                    <terra-select-box
+                    <terra-suggestion-box
                             inputName="property"
                             [inputListBoxValues]="_selectablePropertyValueList"
                             [(ngModel)]="_pickedValue[vendorAttributeValue.name]">
-                    </terra-select-box>
+                    </terra-suggestion-box>
                 </div>
             </div>
         </div>-->
@@ -55,10 +110,9 @@
                               inputTooltipPlacement="right"
                               inputIsTertiary="true"
                               inputCaption=" Properties Mapping"
-                              (outputClicked)="savePropertyMapping(correlationCategory.id)">
+                              (outputClicked)="savePropertyMapping()">
                 </terra-button>
             </div>
         </div>
-        <br>
     </div>
 </terra-portlet>

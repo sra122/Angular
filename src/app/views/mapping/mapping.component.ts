@@ -4,18 +4,17 @@ import {
     ViewChild
 } from '@angular/core';
 
-import { Pipe, PipeTransform } from '@angular/core';
 import { TerraOverlayComponent, TerraSelectBoxValueInterface } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { StatsDataService } from '../stats-view/stats-view.service';
 import { Translation, TranslationService } from 'angular-l10n';
-import { isNullOrUndefined } from 'util';
 
 interface CustomPropertyInterface
 {
     name?:any;
     value?:any;
     category?:any;
+    parentAttribute?:any;
 }
 
 interface CorrelationCatergoryInterface
@@ -29,6 +28,12 @@ interface PickedValueInterface
     id?:number;
     pbAttribute?:any;
     pmAttribute?:any;
+}
+
+interface PickedCategoryInterface
+{
+    id?:number;
+    name?:string;
 }
 
 @Component({
@@ -52,15 +57,19 @@ export class MappingComponent extends Translation implements OnInit
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
+    private _pickedCategoryValue:number;
+    private _requestedForMapping:boolean;
 
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
     private _selectablePropertyValueList:Array<TerraSelectBoxValueInterface> = [];
+    private _categoryOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService)
     {
         super();
         this._isLoading = false;
+        this._requestedForMapping = false;
 
         this._alert = TerraAlertComponent.getInstance();
 
@@ -69,25 +78,21 @@ export class MappingComponent extends Translation implements OnInit
 
     }
 
-    public ngOnInit():void
+    public ngOnInit(categoryId:number = 0):void
     {
-        this._selectableOptionTypesList.push(
-            {
+        this._selectableOptionTypesList.push({
                 value: 'default',
                 caption: 'select one'
-            }
-        );
+        });
 
-        this._selectablePropertyValueList.push(
-            {
+        this._selectablePropertyValueList.push({
                 value: 'default',
                 caption: 'select one'
-            }
-        );
+        });
 
-        this.getVendorProperties();
         this.getPMProperties();
         this.getPMPropertyValues();
+        this.getVendorCategories();
 
         /*this.testArray.push(
             {
@@ -110,15 +115,64 @@ export class MappingComponent extends Translation implements OnInit
         );
     }
 
-    public savePropertyMapping(categoryId:number):any
+    public savePropertyMapping():any
     {
-        console.log(categoryId);
         console.log(this._pickedValue);
     }
 
-    public onSelectChange(event:any, name:any, categoryId:number):any{
+    public onCategoryChange():any
+    {
+        this._requestedForMapping = false;
+    }
+
+    public savePBCategoryAsProperty():any
+    {
+        this._requestedForMapping = true;
+        this.vendorAttributes = [];
+        this.vendorAttributeValues = [];
+        this.correlationCategories = [];
+        this.correlationCategories.push({
+            name: this.getPBCategoryName(this._pickedCategoryValue),
+            id: this._pickedCategoryValue
+        });
+
+        this._statsDataService.postPbCategory(this.getPBCategoryName(this._pickedCategoryValue)).subscribe((pbCategoryCreated:any) => {
+            if(pbCategoryCreated !== 'categoryNameChanged') {
+                this._statsDataService.getRestCallData(
+                    'markets/panda-black/vendor-attribute/' + this._pickedCategoryValue ).subscribe((attributes:any) => {
+                    for(let k in attributes) {
+                        if(attributes.hasOwnProperty(k)) {
+                            if(attributes[k].required) {
+                                this.vendorAttributes.push({
+                                    name: attributes[k].name
+                                });
+
+                                let result:any = Object.keys(attributes[k].values).map(function(key:any):any {
+                                    return attributes[k].values[key];
+                                });
+
+                                for(let attributeValue of result) {
+                                    this.vendorAttributeValues.push({
+                                        name: attributeValue,
+                                        parentAttribute: attributes[k].name
+                                    });
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                this.alert.addAlert({
+                    msg:              'Please don\'t change the Category Name.',
+                    type:             'warning',
+                    dismissOnTimeout: 5000
+                });
+            }
+        });
+    }
+
+    public onSelectChange(event:any, name:any):any{
         this._pickedValue.push({
-           id: categoryId,
            pbAttribute : event,
            pmAttribute : name
         });
@@ -146,17 +200,35 @@ export class MappingComponent extends Translation implements OnInit
                                     name: attributes[k].name,
                                     category: category.settings[0].vendorCategory[0].name
                                 });
-                                for(let attributeValue of attributes[k].values) {
+
+                                let result:any = Object.keys(attributes[k].values).map(function(key:any):any {
+                                    return attributes[k].values[key];
+                                });
+
+                                for(let attributeValue of result) {
                                     this.vendorAttributeValues.push({
                                         name: attributeValue,
-                                        category: category.settings[0].vendorCategory[0].name
+                                        category: category.settings[0].vendorCategory[0].name,
                                     });
-                                    console.log(attributeValue);
                                 }
                             }
                         }
                     }
                 });
+            }
+        });
+    }
+
+    private getVendorCategories():any
+    {
+        this._statsDataService.getRestCallData('markets/panda-black/vendor-categories1').subscribe((categories:any) => {
+            for(let categoryKey in categories) {
+                if(categories.hasOwnProperty(categoryKey)) {
+                    this._categoryOptionTypesList.push({
+                        value: categoryKey,
+                        caption: categories[categoryKey]
+                    });
+                }
             }
         });
     }
@@ -172,6 +244,11 @@ export class MappingComponent extends Translation implements OnInit
                     caption: property
                 });
             }
+
+            this._selectableOptionTypesList.push({
+                value: 'Create Automatically',
+                caption: 'Create Automatically'
+            });
         });
     }
 
@@ -186,6 +263,21 @@ export class MappingComponent extends Translation implements OnInit
                     caption: propertyValue
                 });
             }
+
+            this._selectablePropertyValueList.push({
+                value: 'Create Automatically',
+                caption: 'Create Automatically'
+            });
         });
+    }
+
+    private getPBCategoryName(categoryId:number):any
+    {
+        for(let key in this._categoryOptionTypesList) {
+            if(this._categoryOptionTypesList[key].value === categoryId) {
+                return this._categoryOptionTypesList[key].caption;
+            }
+        }
+        return false;
     }
 }
