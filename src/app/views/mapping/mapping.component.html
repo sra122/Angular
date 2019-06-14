@@ -41,7 +41,7 @@
                             inputName="property"
                             [inputListBoxValues]="_selectableOptionTypesList"
                             [(ngModel)]="vendorAttribute.value"
-                            (ngModelChange)="onSelectChange($event, vendorAttribute.name)">
+                            (ngModelChange)="onSelectChangeAttribute($event, vendorAttribute.name)">
                     </terra-suggestion-box>
                 </div>
                 <!-- If user didn't made a selection -->
@@ -49,7 +49,7 @@
                     <terra-suggestion-box
                             inputName="property"
                             [inputListBoxValues]="_selectableOptionTypesList"
-                            [(ngModel)]="_pickedValue[vendorAttribute.name]">
+                            [(ngModel)]="_pickedValue[vendorAttribute.name + '-attribute']">
                     </terra-suggestion-box>
                 </div>
             </div>
@@ -63,14 +63,14 @@
                                     inputName="property value"
                                     [inputListBoxValues]="_selectablePropertyValueList"
                                     [(ngModel)]="vendorAttributeValue.value"
-                                    (ngModelChange)="onSelectChange($event, vendorAttributeValue.name)">
+                                    (ngModelChange)="onSelectChangeAttributeValue($event, vendorAttributeValue.name, vendorAttribute.name)">
                             </terra-suggestion-box>
                         </div>
                         <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
                             <terra-suggestion-box
                                     inputName="property value"
                                     [inputListBoxValues]="_selectablePropertyValueList"
-                                    [(ngModel)]="_pickedValue[vendorAttributeValue.name]">
+                                    [(ngModel)]="_pickedValue[vendorAttributeValue.name + '~' + vendorAttribute.name]">
                             </terra-suggestion-box>
                         </div>
                     </div>
@@ -78,28 +78,6 @@
             </div>
             <br><hr><br>
         </div>
-        <!--<br><span>Property Value Mapping</span><br>
-        <div class="container" *ngFor="let vendorAttributeValue of vendorAttributeValues">
-            <div class="row">
-                <div class="col-lg-3">{{vendorAttributeValue.name}}</div>
-                <div class="col-lg-1"></div>
-                <div class="col-lg-3" *ngIf="vendorAttributeValue.value !== undefined">
-                    <terra-suggestion-box
-                            inputName="property value"
-                            [inputListBoxValues]="_selectablePropertyValueList"
-                            [(ngModel)]="vendorAttributeValue.value"
-                            (ngModelChange)="onSelectChange($event, vendorAttributeValue.name)">
-                    </terra-suggestion-box>
-                </div>
-                <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
-                    <terra-suggestion-box
-                            inputName="property"
-                            [inputListBoxValues]="_selectablePropertyValueList"
-                            [(ngModel)]="_pickedValue[vendorAttributeValue.name]">
-                    </terra-suggestion-box>
-                </div>
-            </div>
-        </div>-->
         <div class="row">
             <div class="col-lg-3"></div>
             <div class="col-lg-1"></div>

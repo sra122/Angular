@@ -25,9 +25,6 @@ interface CorrelationCatergoryInterface
 
 interface PickedValueInterface
 {
-    id?:number;
-    pbAttribute?:any;
-    pmAttribute?:any;
 }
 
 interface PickedCategoryInterface
@@ -59,6 +56,8 @@ export class MappingComponent extends Translation implements OnInit
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private _pickedCategoryValue:number;
     private _requestedForMapping:boolean;
+    private _mappingPropertyData:any = [];
+    private _mappingPropertyValueData:any = [];
 
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
     private _selectablePropertyValueList:Array<TerraSelectBoxValueInterface> = [];
@@ -94,30 +93,47 @@ export class MappingComponent extends Translation implements OnInit
         this.getPMPropertyValues();
         this.getVendorCategories();
 
-        /*this.testArray.push(
-            {
-                name: 'Brand',
-                value: 'marken'
-            },
-            {
-                name: 'Color'
-            },
-            {
-                name: 'Weight'
-            }
-        );*/
-
         this._mappedAttributes.push(
             {
-                name: 'Brand',
-                value: 'marken'
+                name: 'Kategorie',
+                value: 'Create Automatically'
             }
         );
     }
 
     public savePropertyMapping():any
     {
-        console.log(this._pickedValue);
+        let mappingInfo:any = [];
+
+        for(let key in this._pickedValue)
+        {
+            if(this._pickedValue.hasOwnProperty(key)) {
+                mappingInfo[key] = this._pickedValue[key];
+            }
+        }
+
+        this._statsDataService.postMappingInformation(Object.assign({}, mappingInfo), this._pickedCategoryValue).subscribe((mappingResponse:any) => {
+        });
+    }
+
+    public getMappingInfo():any
+    {
+        this._statsDataService.getRestCallData('markets/panda-black/mapping-data').subscribe((response:any) => {
+
+            for(let attributeName in response.property)
+            {
+                if(response.property.hasOwnProperty(attributeName)) {
+                    this._mappingPropertyData[attributeName] = response.property[attributeName];
+                }
+            }
+
+            for(let attributeValueName in response.propertyValue)
+            {
+                if(response.propertyValue.hasOwnProperty(attributeValueName)) {
+                    this._mappingPropertyValueData[attributeValueName] = response.propertyValue[attributeValueName];
+                }
+            }
+        });
     }
 
     public onCategoryChange():any
@@ -127,6 +143,8 @@ export class MappingComponent extends Translation implements OnInit
 
     public savePBCategoryAsProperty():any
     {
+        this.getMappingInfo();
+        const categoryNameChanged:string = 'categoryNameChanged';
         this._requestedForMapping = true;
         this.vendorAttributes = [];
         this.vendorAttributeValues = [];
@@ -137,45 +155,60 @@ export class MappingComponent extends Translation implements OnInit
         });
 
         this._statsDataService.postPbCategory(this.getPBCategoryName(this._pickedCategoryValue)).subscribe((pbCategoryCreated:any) => {
-            if(pbCategoryCreated !== 'categoryNameChanged') {
+            if(pbCategoryCreated === categoryNameChanged) {
+                this.alert.addAlert({
+                    msg: 'Please don\'t change the Category Name.',
+                    type: 'warning',
+                    dismissOnTimeout: 5000
+                });
+            } else {
                 this._statsDataService.getRestCallData(
                     'markets/panda-black/vendor-attribute/' + this._pickedCategoryValue ).subscribe((attributes:any) => {
                     for(let k in attributes) {
                         if(attributes.hasOwnProperty(k)) {
                             if(attributes[k].required) {
-                                this.vendorAttributes.push({
-                                    name: attributes[k].name
-                                });
-
+                                if(this._mappingPropertyData.hasOwnProperty(attributes[k].name)) {
+                                    this.vendorAttributes.push({
+                                       name: attributes[k].name,
+                                       value: this._mappingPropertyData[attributes[k].name]
+                                    });
+                                } else {
+                                    this.vendorAttributes.push({
+                                        name: attributes[k].name
+                                    });
+                                }
                                 let result:any = Object.keys(attributes[k].values).map(function(key:any):any {
                                     return attributes[k].values[key];
                                 });
 
                                 for(let attributeValue of result) {
-                                    this.vendorAttributeValues.push({
-                                        name: attributeValue,
-                                        parentAttribute: attributes[k].name
-                                    });
+                                    if(this._mappingPropertyValueData.hasOwnProperty(attributeValue)) {
+                                        this.vendorAttributeValues.push({
+                                            name: attributeValue,
+                                            parentAttribute: attributes[k].name,
+                                            value: this._mappingPropertyValueData[attributeValue]
+                                        });
+                                    } else {
+                                        this.vendorAttributeValues.push({
+                                            name: attributeValue,
+                                            parentAttribute: attributes[k].name
+                                        });
+                                    }
                                 }
                             }
                         }
                     }
                 });
-            } else {
-                this.alert.addAlert({
-                    msg:              'Please don\'t change the Category Name.',
-                    type:             'warning',
-                    dismissOnTimeout: 5000
-                });
             }
         });
     }
 
-    public onSelectChange(event:any, name:any):any{
-        this._pickedValue.push({
-           pbAttribute : event,
-           pmAttribute : name
-        });
+    public onSelectChangeAttribute(event:any, attributeName:any):any{
+        this._pickedValue[attributeName + '-attribute'] = event;
+    }
+
+    public onSelectChangeAttributeValue(event:any, attributeValueName:any, attributeName:any):any {
+        this._pickedValue[attributeValueName + '~' + attributeName] = event;
     }
 
     private getVendorProperties():any

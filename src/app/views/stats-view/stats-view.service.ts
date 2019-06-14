@@ -169,6 +169,23 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+
+    public postMappingInformation(mappingInformation:any, pbCategoryId:any):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+
+        let url:string = this.url + 'markets/panda-black/mapping';
+
+        return this.mapRequest(
+            this.http.post(url, {
+                mappingInformation: mappingInformation,
+                categoryId: pbCategoryId
+            }, {
+                headers: this.headers
+            })
+        );
+    }
+
     private setHeader():void
     {
         if(!isNullOrUndefined(this.bearer))
