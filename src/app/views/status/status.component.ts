@@ -8,17 +8,17 @@ import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { StatsDataService } from '../stats-view/stats-view.service';
 import { Translation, TranslationService } from 'angular-l10n';
 
+interface NotificationInterface
+{
+    propertyName?:string;
+    propertyValue?:any;
+}
+
 @Component({
     selector: 'status',
     template: require('./status.component.html'),
     styles:   [require('./status.component.scss')]
 })
-
-interface NotificationInterface
-{
-    propertyName?:number;
-    propertyValue?:string;
-}
 
 export class StatusComponent extends Translation implements OnInit
 {
