@@ -7,19 +7,25 @@ import { TerraOverlayComponent } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { StatsDataService } from '../stats-view/stats-view.service';
 import { Translation, TranslationService } from 'angular-l10n';
-import { isNullOrUndefined } from "util";
-import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
     selector: 'status',
     template: require('./status.component.html'),
     styles:   [require('./status.component.scss')]
 })
+
+interface NotificationInterface
+{
+    propertyName?:number;
+    propertyValue?:string;
+}
+
 export class StatusComponent extends Translation implements OnInit
 {
     @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
     @ViewChild('viewChildOverlayStatic') public viewChildOverlayStatic:TerraOverlayComponent;
     public productStatus:any;
+    public _propertyNotFound:Array<NotificationInterface> = [];
 
     public _expireTime:any;
     private _isLoading:boolean;
@@ -42,12 +48,11 @@ export class StatusComponent extends Translation implements OnInit
     public ngOnInit():void
     {
         this.getProductStatus();
-        //this.getAttributeNames();
     }
 
     private getProductStatus():any
     {
-        this._statsDataService.postPbProducts('markets/panda-black/products-data').subscribe((response:any) => {
+        /*this._statsDataService.postPbProducts('markets/panda-black/products-data').subscribe((response:any) => {
             if(!isNullOrUndefined(response)) {
                 let missingProducts:any = response.unfulfilledProducts.missingAttributeProducts;
                 for(let key in missingProducts) {
@@ -64,6 +69,18 @@ export class StatusComponent extends Translation implements OnInit
             }
 
             console.log(this.productStatus);
+        });*/
+
+        this._statsDataService.getRestCallData('markets/panda-black/notifications').subscribe((response:any) => {
+            for(let key in response.propertyNotFound)
+            {
+                if(response.propertyNotFound.hasOwnProperty(key)) {
+                    this._propertyNotFound.push({
+                        propertyName: key,
+                        propertyValue: response.propertyNotFound[key]
+                    });
+                }
+            }
         });
     }
 

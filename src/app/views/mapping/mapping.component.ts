@@ -27,12 +27,6 @@ interface PickedValueInterface
 {
 }
 
-interface PickedCategoryInterface
-{
-    id?:number;
-    name?:string;
-}
-
 @Component({
     selector: 'mapping',
     template: require('./mapping.component.html'),
@@ -58,6 +52,7 @@ export class MappingComponent extends Translation implements OnInit
     private _requestedForMapping:boolean;
     private _mappingPropertyData:any = [];
     private _mappingPropertyValueData:any = [];
+    private _relativePropertyValues:any = [];
 
     private _selectableOptionTypesList:Array<TerraSelectBoxValueInterface> = [];
     private _selectablePropertyValueList:Array<TerraSelectBoxValueInterface> = [];
@@ -92,6 +87,7 @@ export class MappingComponent extends Translation implements OnInit
         this.getPMProperties();
         this.getPMPropertyValues();
         this.getVendorCategories();
+        this.notifications();
 
         this._mappedAttributes.push(
             {
@@ -209,6 +205,13 @@ export class MappingComponent extends Translation implements OnInit
 
     public onSelectChangeAttributeValue(event:any, attributeValueName:any, attributeName:any):any {
         this._pickedValue[attributeValueName + '~' + attributeName] = event;
+    }
+
+
+    public notifications():any {
+        this._statsDataService.getRestCallData('markets/panda-black/notifications').subscribe((notification:any) => {
+            console.log(notification);
+        });
     }
 
     private getVendorProperties():any
