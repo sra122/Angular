@@ -6,7 +6,7 @@ import {
     TerraBaseService,
     TerraLoadingSpinnerService
 } from '@plentymarkets/terra-components';
-import { isNullOrUndefined } from 'util';
+import { isBoolean, isNullOrUndefined } from 'util';
 
 @Injectable()
 export class StatsDataService extends TerraBaseService
@@ -157,16 +157,18 @@ export class StatsDataService extends TerraBaseService
 
     public postPbCategory(pbCategoryTitle:any):Observable<void>
     {
-        this.headers.set('APP-ID', process.env.PB_APP_ID);
-        let url:string = this.url + 'markets/panda-black/create-category-as-property';
+        if(!isBoolean(pbCategoryTitle)) {
+            this.headers.set('APP-ID', process.env.PB_APP_ID);
+            let url:string = this.url + 'markets/panda-black/create-category-as-property';
 
-        return this.mapRequest(
-            this.http.post(url, {
-                categoryName: pbCategoryTitle
-            }, {
-                headers: this.headers
-            })
-        );
+            return this.mapRequest(
+                this.http.post(url, {
+                    categoryName: pbCategoryTitle
+                }, {
+                    headers: this.headers
+                })
+            );
+        }
     }
 
 
@@ -180,6 +182,23 @@ export class StatsDataService extends TerraBaseService
             this.http.post(url, {
                 mappingInformation: mappingInformation,
                 categoryId: pbCategoryId
+            }, {
+                headers: this.headers
+            })
+        );
+    }
+
+
+    public postRemoveNotification(propertyName:any, notificationType:string):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+
+        let url:string = this.url + 'markets/panda-black/remove-notification';
+
+        return this.mapRequest(
+            this.http.post(url, {
+                notificationType: notificationType,
+                propertyName: propertyName
             }, {
                 headers: this.headers
             })

@@ -1,3 +1,16 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <terra-button inputIcon='icon-refresh'
+                          [inputTooltipText]="'stats-view.refreshToolTip' | translate:lang"
+                          [inputCaption]="'stats-view.refresh' | translate:lang"
+                          inputTooltipPlacement="left"
+                          (outputClicked)="ngOnInit(1)">
+            </terra-button>
+        </div>
+    </div>
+</div>
+
 <terra-portlet>
     <b>Category Selection</b>
     <div class="container">
@@ -33,7 +46,7 @@
         <span><b>Property Mapping</b></span><br>
         <div class="container" *ngFor="let vendorAttribute of vendorAttributes">
             <div class="row">
-                <div class="col-lg-3">{{vendorAttribute.name}}</div>
+                <div class="col-lg-2">{{vendorAttribute.name}}</div>
                 <div class="col-lg-1"></div>
                 <!--If user already made a selection -->
                 <div class="col-lg-3" *ngIf="vendorAttribute.value !== undefined">
@@ -52,45 +65,58 @@
                             [(ngModel)]="_pickedValue[vendorAttribute.name + '-attribute']">
                     </terra-suggestion-box>
                 </div>
-            </div>
-            <div class="container" *ngFor="let vendorAttributeValue of vendorAttributeValues">
-                <span *ngIf="vendorAttributeValue.parentAttribute === vendorAttribute.name">
-                    <div class="row">
-                        <div class="col-lg-3">{{vendorAttributeValue.name}}</div>
-                        <div class="col-lg-1"></div>
-                        <div class="col-lg-3" *ngIf="vendorAttributeValue.value !== undefined">
-                            <terra-suggestion-box
-                                    inputName="property value"
-                                    [inputListBoxValues]="_selectablePropertyValueList"
-                                    [(ngModel)]="vendorAttributeValue.value"
-                                    (ngModelChange)="onSelectChangeAttributeValue($event, vendorAttributeValue.name, vendorAttribute.name)">
-                            </terra-suggestion-box>
-                        </div>
-                        <div class="col-lg-3" *ngIf="vendorAttributeValue.value === undefined">
-                            <terra-suggestion-box
-                                    inputName="property value"
-                                    [inputListBoxValues]="_selectablePropertyValueList"
-                                    [(ngModel)]="_pickedValue[vendorAttributeValue.name + '~' + vendorAttribute.name]">
-                            </terra-suggestion-box>
-                        </div>
-                    </div>
-                </span>
-            </div>
-            <br><hr><br>
-        </div>
-        <div class="row">
-            <div class="col-lg-3"></div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-3"></div>
-            <div class="col-lg-1">
-                <terra-button inputIcon="icon-save"
-                              inputTooltipText="Save Mapping"
-                              inputTooltipPlacement="right"
-                              inputIsTertiary="true"
-                              inputCaption=" Properties Mapping"
-                              (outputClicked)="savePropertyMapping()">
-                </terra-button>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3">
+                    <terra-button inputIcon="icon-save"
+                                  inputTooltipText="Mapping Property Values"
+                                  inputTooltipPlacement="right"
+                                  inputIsTertiary="true"
+                                  inputCaption=" Mapping Property Values"
+                                  (outputClicked)="savePropertyMapping(vendorAttribute.attributeId, true, vendorAttribute.name)">
+                    </terra-button>
+                </div>
             </div>
         </div>
     </div>
 </terra-portlet>
+
+
+<terra-overlay #propertyValueMapping
+               [inputIsLarge]="true"
+               inputOverlayTitle="Property Values Mapping">
+    <terra-portlet>
+        <div class="container" *ngFor="let attribute of relatedAttributes">
+            <div class="row">
+                <div class="col-lg-3">{{attribute.name}}</div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-5" *ngIf="attribute.value !== undefined">
+                    <terra-suggestion-box
+                            inputName="property value"
+                            [inputListBoxValues]="_selectablePropertyValueList"
+                            [(ngModel)]="attribute.value"
+                            (ngModelChange)="onSelectChangeAttributeValue($event, attribute.name, attribute.parentAttribute)">
+                    </terra-suggestion-box>
+                </div>
+                <div class="col-lg-5" *ngIf="attribute.value === undefined">
+                    <terra-suggestion-box
+                            inputName="property value"
+                            [inputListBoxValues]="_selectablePropertyValueList"
+                            [(ngModel)]="_pickedValue[attribute.name + '~' + attribute.parentAttribute]">
+                    </terra-suggestion-box>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9"></div>
+            <div class="col-lg-3">
+                <terra-button inputIcon="icon-save"
+                              inputTooltipText="Mapping Property Values"
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=" Mapping Property Values"
+                              (outputClicked)="savePropertyMapping(relatedAttributes[0].parentAttribute, false)">
+                </terra-button>
+            </div>
+        </div>
+    </terra-portlet>
+</terra-overlay>

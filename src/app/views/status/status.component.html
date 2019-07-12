@@ -1,11 +1,109 @@
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <div *ngFor="let missingProducts of productStatus">
-                <div *ngFor="let product of missingProducts;">
-                    <div>{{product}}</div>
+        <div class="col-sm-12">
+            <terra-button inputIcon='icon-refresh'
+                          [inputTooltipText]="'stats-view.refreshToolTip' | translate:lang"
+                          [inputCaption]="'stats-view.refresh' | translate:lang"
+                          inputTooltipPlacement="left"
+                          (outputClicked)="ngOnInit()">
+            </terra-button>
+            <terra-button [inputCaption]="'stats-view.validation' | translate:lang"
+                          (outputClicked)="validationProducts()">
+            </terra-button>
+        </div>
+    </div>
+    <terra-portlet inputPortletHeader="No PANDA.BLACK related Properties for Products">
+        <div class="row" *ngIf="this.emptyAttributeProducts.length > 0">
+            <div class="col-lg-7">
+                <div>Related Properties are missing for Products
+                    <span *ngFor="let product of this.emptyAttributeProducts">
+                {{product.productId}},
+            </span>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-2">
+                <terra-button inputIcon="icon-delete"
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=""
+                              (outputClicked)="deletePropertyNotification('', 'emptyAttributeProducts')">
+                </terra-button>
+            </div>
+        </div>
+    </terra-portlet>
+    <terra-portlet inputPortletHeader="Missing Properties for Products">
+        <div *ngFor="let product of this.missingAttributeProducts">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div>Item Id {{product.productId}}, doesn't have the properties {{product.attributes}}</div>
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-2">
+                    <terra-button inputIcon="icon-delete"
+                                  inputTooltipPlacement="right"
+                                  inputIsTertiary="true"
+                                  inputCaption=""
+                                  (outputClicked)="deletePropertyNotification(product.productId, 'missingAttributeProducts')">
+                    </terra-button>
                 </div>
             </div>
         </div>
-    </div>
+    </terra-portlet>
+    <terra-portlet inputPortletHeader="No Stock Products">
+        <div class="row" *ngIf="this.noStockProducts.length > 0">
+            <div class="col-lg-7">
+                <div>Stock is Zero for Item Ids
+                    <span *ngFor="let product of this.noStockProducts">
+                        {{product.productId}},
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-2">
+                <terra-button inputIcon="icon-delete"
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=""
+                              (outputClicked)="deletePropertyNotification('', 'noStockProducts')">
+                </terra-button>
+            </div>
+        </div>
+    </terra-portlet>
+    <terra-portlet inputPortletHeader="No Asin Products">
+        <div class="row" *ngIf="this.noAsinProducts.length > 0">
+            <div class="col-lg-7">
+                <div>Asin Information is missing for Item Ids
+                    <span *ngFor="let product of this.noAsinProducts">{{product.productId}},</span>
+                </div>
+            </div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-2">
+                <terra-button inputIcon="icon-delete"
+                              inputTooltipPlacement="right"
+                              inputIsTertiary="true"
+                              inputCaption=""
+                              (outputClicked)="deletePropertyNotification('', 'noAsinProducts')">
+                </terra-button>
+            </div>
+        </div>
+    </terra-portlet>
+    <terra-portlet inputPortletHeader="Admin Notifications">
+        <div *ngFor="let adminNotification of this.admin">
+            <div class="row">
+                <div class="col-lg-7">
+                    <div>{{adminNotification.msg}}</div>
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-2">
+                    <terra-button inputIcon="icon-delete"
+                                  inputTooltipPlacement="right"
+                                  inputIsTertiary="true"
+                                  inputCaption=""
+                                  (outputClicked)="deletePropertyNotification(adminNotification.id, 'admin')">
+                    </terra-button>
+                </div>
+            </div>
+        </div>
+    </terra-portlet>
 </div>

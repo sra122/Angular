@@ -147,6 +147,7 @@ export class StatsViewComponent extends Translation implements OnInit
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private editCorrelationId:number = 0;
     private vendorParentCategory:Array<any>;
+    private _orderId:number;
 
     constructor(private _statsDataService:StatsDataService,
                 public translation:TranslationService,
@@ -157,11 +158,8 @@ export class StatsViewComponent extends Translation implements OnInit
         super();
 
         this._isLoading = false;
-
         this._alert = TerraAlertComponent.getInstance();
-
         this._lastUiId = 0;
-
         this.vendorCategoryName = '';
         this.categoryName = '';
         this.categoryMapping = [];
