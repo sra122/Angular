@@ -1,4 +1,4 @@
-<div class="container">
+<!--<div class="container">
     <div class="row">
         <div class="col-sm-12">
             <terra-button inputIcon='icon-refresh'
@@ -9,22 +9,27 @@
             </terra-button>
         </div>
     </div>
-</div>
-
+</div>-->
+<!--<terra-button inputCaption="info alert"
+              (click)="testAlert()"></terra-button>-->
+<br><br>
 <terra-portlet>
-    <b>Category Selection</b>
     <div class="container">
         <div class="row">
+            <div class="col-lg-2">
+                <b>{{ 'mapping.category-selection' | translate:lang }}</b>
+            </div>
+            <div class="col-lg-1"></div>
             <div class="col-lg-7">
                 <terra-suggestion-box
-                        inputName="Category Selection"
+                        [inputName]="'mapping.category-selection-placeholder' | translate:lang"
                         [inputListBoxValues]="_categoryOptionTypesList"
                         [(ngModel)]="_pickedCategoryValue"
-                        (ngModelChange)="onCategoryChange()">
+                        (ngModelChange)="savePBCategoryAsProperty()">
                 </terra-suggestion-box>
             </div>
         </div>
-        <div class="row">
+        <!--<div class="row">
             <div class="col-lg-10"></div>
             <div class="col-lg-1">
                 <terra-button inputIcon="icon-save"
@@ -35,23 +40,34 @@
                               (outputClicked)="savePBCategoryAsProperty()">
                 </terra-button>
             </div>
-        </div>
-
+        </div>-->
     </div>
 </terra-portlet>
+<br><br>
 
 
 <terra-portlet>
-    <div *ngIf="_requestedForMapping">
-        <span><b>Property Mapping</b></span><br>
-        <div class="container" *ngFor="let vendorAttribute of vendorAttributes">
+    <div class="container" *ngIf="_requestedForMapping">
+        <div class="row">
+            <div class="col-lg-2">
+                <b>{{ 'mapping.property-mapping' | translate:lang }}</b>
+            </div>
+        </div>
+        <br><br>
+        <div class="row">
+            <div class="col-lg-2"><b>{{ 'mapping.pb-properties' | translate:lang }}</b></div>
+            <div class="col-lg-1"></div>
+            <div class="col-lg-3"><b>{{ 'mapping.pm-properties' | translate:lang }}</b></div>
+        </div>
+        <br><br>
+        <span *ngFor="let vendorAttribute of vendorAttributes">
             <div class="row">
                 <div class="col-lg-2">{{vendorAttribute.name}}</div>
                 <div class="col-lg-1"></div>
                 <!--If user already made a selection -->
                 <div class="col-lg-3" *ngIf="vendorAttribute.value !== undefined">
                     <terra-suggestion-box
-                            inputName="property"
+                            [inputName]="'mapping.property-mapping-placeholder' | translate:lang"
                             [inputListBoxValues]="_selectableOptionTypesList"
                             [(ngModel)]="vendorAttribute.value"
                             (ngModelChange)="onSelectChangeAttribute($event, vendorAttribute.name)">
@@ -60,38 +76,95 @@
                 <!-- If user didn't made a selection -->
                 <div class="col-lg-3" *ngIf="vendorAttribute.value === undefined">
                     <terra-suggestion-box
-                            inputName="property"
+                            [inputName]="'mapping.property-mapping-placeholder' | translate:lang"
                             [inputListBoxValues]="_selectableOptionTypesList"
                             [(ngModel)]="_pickedValue[vendorAttribute.name + '-attribute']">
                     </terra-suggestion-box>
                 </div>
                 <div class="col-lg-1"></div>
                 <div class="col-lg-3">
-                    <terra-button inputIcon="icon-save"
+                    <terra-button inputIcon="icon-edit"
                                   inputTooltipText="Mapping Property Values"
                                   inputTooltipPlacement="right"
                                   inputIsTertiary="true"
-                                  inputCaption=" Mapping Property Values"
+                                  [inputCaption]="'mapping.edit-propertyValues' | translate:lang"
                                   (outputClicked)="savePropertyMapping(vendorAttribute.attributeId, true, vendorAttribute.name)">
                     </terra-button>
                 </div>
             </div>
-        </div>
+            <br><br>
+        </span>
     </div>
 </terra-portlet>
+
+<!--<terra-portlet>
+    <div *ngIf="_requestedForMapping">
+        <span><b>{{ 'mapping.property-mapping' | translate:lang }}</b></span><br>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2"><b>{{ 'mapping.pb-properties' | translate:lang }}</b></div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3"><b>{{ 'mapping.pm-properties' | translate:lang }}</b></div>
+            </div>
+        </div>
+        <br><br>
+        <div class="container" *ngFor="let vendorAttribute of vendorAttributes">
+            <div class="row">
+                <div class="col-lg-2">{{vendorAttribute.name}}</div>
+                <div class="col-lg-1"></div>
+                &lt;!&ndash;If user already made a selection &ndash;&gt;
+                <div class="col-lg-3" *ngIf="vendorAttribute.value !== undefined">
+                    <terra-suggestion-box
+                            [inputName]="'mapping.property-mapping-placeholder' | translate:lang"
+                            [inputListBoxValues]="_selectableOptionTypesList"
+                            [(ngModel)]="vendorAttribute.value"
+                            (ngModelChange)="onSelectChangeAttribute($event, vendorAttribute.name)">
+                    </terra-suggestion-box>
+                </div>
+                &lt;!&ndash; If user didn't made a selection &ndash;&gt;
+                <div class="col-lg-3" *ngIf="vendorAttribute.value === undefined">
+                    <terra-suggestion-box
+                            [inputName]="'mapping.property-mapping-placeholder' | translate:lang"
+                            [inputListBoxValues]="_selectableOptionTypesList"
+                            [(ngModel)]="_pickedValue[vendorAttribute.name + '-attribute']">
+                    </terra-suggestion-box>
+                </div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-3">
+                    <terra-button inputIcon="icon-edit"
+                                  inputTooltipText="Mapping Property Values"
+                                  inputTooltipPlacement="right"
+                                  inputIsTertiary="true"
+                                  [inputCaption]="'mapping.edit-propertyValues' | translate:lang"
+                                  (outputClicked)="savePropertyMapping(vendorAttribute.attributeId, true, vendorAttribute.name)">
+                    </terra-button>
+                </div>
+            </div>
+            <br><br>
+        </div>
+    </div>
+</terra-portlet>-->
 
 
 <terra-overlay #propertyValueMapping
                [inputIsLarge]="true"
-               inputOverlayTitle="Property Values Mapping">
+               [inputOverlayTitle]="'mapping.map-propertyValues' | translate:lang">
     <terra-portlet>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5"><b>{{ 'mapping.pb-propertyValues' | translate:lang }}</b></div>
+                <div class="col-lg-1"></div>
+                <div class="col-lg-4"><b>{{ 'mapping.pm-propertyValues' | translate:lang }}</b></div>
+            </div>
+        </div>
+        <br><br>
         <div class="container" *ngFor="let attribute of relatedAttributes">
             <div class="row">
-                <div class="col-lg-3">{{attribute.name}}</div>
+                <div class="col-lg-5">{{attribute.name}}</div>
                 <div class="col-lg-1"></div>
-                <div class="col-lg-5" *ngIf="attribute.value !== undefined">
+                <div class="col-lg-4" *ngIf="attribute.value !== undefined">
                     <terra-suggestion-box
-                            inputName="property value"
+                            [inputName]="'mapping.map-propertyValues-placeholder' | translate:lang"
                             [inputListBoxValues]="_selectablePropertyValueList"
                             [(ngModel)]="attribute.value"
                             (ngModelChange)="onSelectChangeAttributeValue($event, attribute.name, attribute.parentAttribute)">
@@ -99,21 +172,22 @@
                 </div>
                 <div class="col-lg-5" *ngIf="attribute.value === undefined">
                     <terra-suggestion-box
-                            inputName="property value"
+                            [inputName]="'mapping.map-propertyValues-placeholder' | translate:lang"
                             [inputListBoxValues]="_selectablePropertyValueList"
                             [(ngModel)]="_pickedValue[attribute.name + '~' + attribute.parentAttribute]">
                     </terra-suggestion-box>
                 </div>
             </div>
+            <br><br>
         </div>
         <div class="row">
-            <div class="col-lg-9"></div>
-            <div class="col-lg-3">
+            <div class="col-lg-10"></div>
+            <div class="col-lg-2">
                 <terra-button inputIcon="icon-save"
                               inputTooltipText="Mapping Property Values"
                               inputTooltipPlacement="right"
                               inputIsTertiary="true"
-                              inputCaption=" Mapping Property Values"
+                              [inputCaption]="'mapping.save-propertyValues' | translate:lang"
                               (outputClicked)="savePropertyMapping(relatedAttributes[0].parentAttribute, false)">
                 </terra-button>
             </div>

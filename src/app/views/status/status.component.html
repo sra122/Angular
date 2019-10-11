@@ -12,83 +12,18 @@
             </terra-button>
         </div>
     </div>
-    <terra-portlet inputPortletHeader="No PANDA.BLACK related Properties for Products">
-        <div class="row" *ngIf="this.emptyAttributeProducts.length > 0">
-            <div class="col-lg-7">
-                <div>Related Properties are missing for Products
-                    <span *ngFor="let product of this.emptyAttributeProducts">
-                {{product.productId}},
-            </span>
-                </div>
-            </div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-2">
-                <terra-button inputIcon="icon-delete"
-                              inputTooltipPlacement="right"
-                              inputIsTertiary="true"
-                              inputCaption=""
-                              (outputClicked)="deletePropertyNotification('', 'emptyAttributeProducts')">
-                </terra-button>
-            </div>
-        </div>
-    </terra-portlet>
-    <terra-portlet inputPortletHeader="Missing Properties for Products">
-        <div *ngFor="let product of this.missingAttributeProducts">
-            <div class="row">
-                <div class="col-lg-7">
-                    <div>Item Id {{product.productId}}, doesn't have the properties {{product.attributes}}</div>
-                </div>
-                <div class="col-lg-1"></div>
-                <div class="col-lg-2">
-                    <terra-button inputIcon="icon-delete"
-                                  inputTooltipPlacement="right"
-                                  inputIsTertiary="true"
-                                  inputCaption=""
-                                  (outputClicked)="deletePropertyNotification(product.productId, 'missingAttributeProducts')">
-                    </terra-button>
-                </div>
-            </div>
-        </div>
-    </terra-portlet>
-    <terra-portlet inputPortletHeader="No Stock Products">
-        <div class="row" *ngIf="this.noStockProducts.length > 0">
-            <div class="col-lg-7">
-                <div>Stock is Zero for Item Ids
-                    <span *ngFor="let product of this.noStockProducts">
-                        {{product.productId}},
-                    </span>
-                </div>
-            </div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-2">
-                <terra-button inputIcon="icon-delete"
-                              inputTooltipPlacement="right"
-                              inputIsTertiary="true"
-                              inputCaption=""
-                              (outputClicked)="deletePropertyNotification('', 'noStockProducts')">
-                </terra-button>
-            </div>
-        </div>
-    </terra-portlet>
-    <terra-portlet inputPortletHeader="No Asin Products">
-        <div class="row" *ngIf="this.noAsinProducts.length > 0">
-            <div class="col-lg-7">
-                <div>Asin Information is missing for Item Ids
-                    <span *ngFor="let product of this.noAsinProducts">{{product.productId}},</span>
-                </div>
-            </div>
-            <div class="col-lg-1"></div>
-            <div class="col-lg-2">
-                <terra-button inputIcon="icon-delete"
-                              inputTooltipPlacement="right"
-                              inputIsTertiary="true"
-                              inputCaption=""
-                              (outputClicked)="deletePropertyNotification('', 'noAsinProducts')">
-                </terra-button>
-            </div>
-        </div>
-    </terra-portlet>
-    <terra-portlet inputPortletHeader="Admin Notifications">
+    <br>
+    <terra-pager [inputPagingData]="pagingData"></terra-pager>
+    <terra-simple-table #table
+                        [inputIsStriped]="true"
+                        [inputHasCheckboxes]="true"
+                        [inputUseHighlighting]="true"
+                        [inputEnableHotkeys]="true"
+                        [inputHeaderList]="_headerList"
+                        [inputRowList]="_rowList">
+    </terra-simple-table>
+    <br><br><br>
+    <terra-portlet [inputPortletHeader]="'status.admin-notification' | translate:lang">
         <div *ngFor="let adminNotification of this.admin">
             <div class="row">
                 <div class="col-lg-7">

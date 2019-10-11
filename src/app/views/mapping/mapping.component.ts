@@ -7,7 +7,7 @@ import {
 import { TerraOverlayComponent, TerraSelectBoxValueInterface, TerraAlertComponent } from '@plentymarkets/terra-components';
 import { StatsDataService } from '../stats-view/stats-view.service';
 import { Translation, TranslationService } from 'angular-l10n';
-import { isNullOrUndefined, isNumber } from 'util';
+import { isBoolean, isNullOrUndefined, isNumber } from 'util';
 
 interface CustomPropertyInterface
 {
@@ -44,9 +44,8 @@ export class MappingComponent extends Translation implements OnInit
     public correlationCategories:Array<CorrelationCatergoryInterface> = [];
 
     private _isLoading:boolean;
-    private _alert:TerraAlertComponent;
     private _lastUiId:number;
-    private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
+    private _alert:TerraAlertComponent = TerraAlertComponent.getInstance();
     private _pickedCategoryValue:number;
     private _requestedForMapping:boolean;
     private _attributeValueChange:boolean;
@@ -86,6 +85,16 @@ export class MappingComponent extends Translation implements OnInit
         }
     }
 
+    public testAlert():void
+    {
+        this._alert.addAlert({
+            msg:              'info-Alert',
+            type:             'info',
+            dismissOnTimeout: 5000,
+            identifier:       'info'
+        });
+    }
+
     /**
      *
      * @param attributeId
@@ -98,7 +107,7 @@ export class MappingComponent extends Translation implements OnInit
 
         /* If Seller is trying to Proceed further before creating Property Mapping. */
         if((propertyMapping === true) && (attributeName === null)) {
-            this.alert.addAlert( {
+            this._alert.addAlert( {
                 msg:   'Please create Property Before proceeding to Property Values',
                 type:  'danger',
                 dismissOnTimeout: 50000
@@ -119,6 +128,11 @@ export class MappingComponent extends Translation implements OnInit
         if(propertyMapping === false)
         {
             this.propertyValueMapping.hideOverlay();
+            this._alert.addAlert({
+                msg:              'Information is Saved.',
+                type:             'success',
+                dismissOnTimeout: 5000
+            });
         }
 
         if(propertyMapping === true)
@@ -157,8 +171,9 @@ export class MappingComponent extends Translation implements OnInit
 
             this._selectablePropertyValueList.push({
                 value: 'Create Automatically',
-                caption: 'Create Automatically'
+                caption: this.translation.translate('mapping.create-automatically'),
             });
+            this._selectablePropertyValueList = this._selectablePropertyValueList.sort();
             this.propertyValueMapping.showOverlay();
         }
     }
@@ -201,10 +216,12 @@ export class MappingComponent extends Translation implements OnInit
             id: this._pickedCategoryValue
         });*/
 
-        this._statsDataService.postPbCategory(this.getPBCategoryName(this._pickedCategoryValue)).subscribe((pbCategoryCreated:any) => {
-            if(isNumber(pbCategoryCreated)) {
-                this._statsDataService.getRestCallData(
-                    'markets/panda-black/vendor-attribute/' + this._pickedCategoryValue).subscribe((attributes:any) => {
+        let pbCategoryName:any = this.getPBCategoryName(this._pickedCategoryValue);
+        if(!isBoolean(pbCategoryName)) {
+            this._statsDataService.postPbCategory(pbCategoryName).subscribe((pbCategoryCreated:any) => {
+                if(isNumber(pbCategoryCreated)) {
+                    this._statsDataService.getRestCallData(
+                        'markets/panda-black/vendor-attribute/' + this._pickedCategoryValue).subscribe((attributes:any) => {
                         for(let k in attributes) {
                             if(attributes.hasOwnProperty(k)) {
                                 if(attributes[k].required && !isNullOrUndefined(attributes[k].values)) {
@@ -244,8 +261,9 @@ export class MappingComponent extends Translation implements OnInit
                             }
                         }
                     });
-            }
-        });
+                }
+            });
+        }
     }
 
     public onSelectChangeAttribute(event:any, attributeName:any):any{
@@ -284,8 +302,10 @@ export class MappingComponent extends Translation implements OnInit
 
             this._selectableOptionTypesList.push({
                 value: 'Create Automatically',
-                caption: 'Create Automatically'
+                caption: this.translation.translate('mapping.create-automatically')
             });
+
+            this._selectableOptionTypesList = this._selectableOptionTypesList.sort();
         });
     }
 

@@ -1,9 +1,9 @@
 import {
     Component,
     OnInit,
-    ViewChild
+    ViewChild, ViewContainerRef
 } from '@angular/core';
-import { TerraOverlayComponent } from '@plentymarkets/terra-components';
+import { TerraOverlayComponent, TerraPagerInterface, TerraSimpleTableCellInterface, TerraSimpleTableComponent, TerraSimpleTableHeaderCellInterface, TerraSimpleTableRowInterface } from '@plentymarkets/terra-components';
 import { TerraAlertComponent } from '@plentymarkets/terra-components';
 import { StatsDataService } from '../stats-view/stats-view.service';
 import { Translation, TranslationService } from 'angular-l10n';
@@ -52,20 +52,34 @@ export class StatusComponent extends Translation implements OnInit
 {
     @ViewChild('viewChildOverlayWithPrimaryButton') public viewChildOverlayWithPrimaryButton:TerraOverlayComponent;
     @ViewChild('viewChildOverlayStatic') public viewChildOverlayStatic:TerraOverlayComponent;
+    @ViewChild('table') public table:TerraSimpleTableComponent<any>;
     public productStatus:any;
+    public errorProducts:any = [];
+    public errorProductAttributes:any = [];
     public emptyAttributeProducts:Array<NoAttributeProducts> = [];
     public missingAttributeProducts:Array<MissingProductAttributes> = [];
     public noStockProducts:Array<NoStockProducts> = [];
     public noAsinProducts:Array<NoAsinProducts> = [];
     public admin:Array<AdminNotifications> = [];
+    public pagingData:TerraPagerInterface;
 
     public _expireTime:any;
     private _isLoading:boolean;
     private _alert:TerraAlertComponent;
     private _lastUiId:number;
+    private _viewContainerRef:ViewContainerRef;
+    private _headerList:Array<TerraSimpleTableHeaderCellInterface> = [];
+    private _rowList:Array<TerraSimpleTableRowInterface<any>> = [];
     private alert:TerraAlertComponent = TerraAlertComponent.getInstance();
+    private _headerInfo:any = [
+        this.translation.translate('status.variationId'),
+        this.translation.translate('status.missing-properties'),
+        this.translation.translate('status.stock'),
+        this.translation.translate('status.Asin'),
+        this.translation.translate('status.related-Properties')
+    ];
 
-    constructor(private _statsDataService:StatsDataService)
+    constructor(private _statsDataService:StatsDataService, private viewContainerRef:ViewContainerRef)
     {
         super();
         this._isLoading = false;
@@ -74,6 +88,7 @@ export class StatusComponent extends Translation implements OnInit
 
         this._lastUiId = 0;
         this.productStatus = '';
+        this._viewContainerRef = viewContainerRef;
     }
 
     public ngOnInit():void
@@ -83,100 +98,10 @@ export class StatusComponent extends Translation implements OnInit
         this.noAsinProducts = [];
         this.emptyAttributeProducts = [];
         this.admin = [];
-        this.notifications();
+        this.headerList();
+        this.rowList();
     }
 
-    public notifications():any {
-        this._statsDataService.getRestCallData('markets/panda-black/notifications').subscribe((notification:any) => {
-
-            if(!isNullOrUndefined(notification.missingAttributeProducts)) {
-                for(let productId in notification.missingAttributeProducts)
-                {
-                    if(notification.missingAttributeProducts.hasOwnProperty(productId)) {
-                        this.missingAttributeProducts.push({
-                            productId: parseInt(productId, 10),
-                            attributes:  (this.arrayValues(Object.assign([], notification.missingAttributeProducts[productId])).join(',')).replace(',,', '')
-                        });
-                    }
-                }
-            }
-
-            if(!isNullOrUndefined(notification.noStockProducts)) {
-                for(let productId of notification.noStockProducts)
-                {
-                    this.noStockProducts.push({
-                        productId: productId
-                    });
-                }
-            }
-
-            if(!isNullOrUndefined(notification.noAsinProducts)) {
-                for(let productId of notification.noAsinProducts)
-                {
-                    this.noAsinProducts.push({
-                        productId: productId
-                    });
-                }
-            }
-
-            if(!isNullOrUndefined(notification.emptyAttributeProducts)) {
-                for(let productId of notification.emptyAttributeProducts)
-                {
-                    this.emptyAttributeProducts.push({
-                        productId: productId
-                    });
-                }
-            }
-
-            if(!isNullOrUndefined(notification.admin)) {
-                for(let id in notification.admin)
-                {
-                    if(notification.admin.hasOwnProperty(id)) {
-                        // New Attribute
-                        if(notification.admin[id].type === 'attribute' && notification.admin[id].values.action === 'new') {
-                            this.admin.push({
-                                msg: 'Neu attribute ' + notification.admin[id].values.value + ' erstellt für Kategorie ' + notification.admin[id].categoryName,
-                                id: notification.admin[id].id
-                            });
-                        }
-
-                        // Name Change to Attribute
-                        if(notification.admin[id].type === 'attribute' && notification.admin[id].values.action === 'rename') {
-                            this.admin.push({
-                                msg: 'Attribute ' + notification.admin[id].values.oldValue + ' geändert zu ' + notification.admin[id].values.value + ' im Kategorie ' + notification.admin[id].categoryName,
-                                id: notification.admin[id].id
-                            });
-                        }
-
-                        // New Attribute Value
-                        if(notification.admin[id].type === 'attribute_value' && notification.admin[id].values.action === 'new') {
-                            this.admin.push({
-                                msg: 'Neu attribute value ' + notification.admin[id].values.value + ' erstellt für Kategorie ' + notification.admin[id].categoryName,
-                                id: notification.admin[id].id
-                            });
-                        }
-
-                        // Name Change to Attribute Value
-                        if(notification.admin[id].type === 'attribute_value' && notification.admin[id].values.action === 'rename') {
-                            this.admin.push({
-                                msg: 'Attribute value' + notification.admin[id].values.oldValue + ' geändert zu ' + notification.admin[id].values.value + ' im Kategorie ' + notification.admin[id].categoryName,
-                                id: notification.admin[id].id
-                            });
-                        }
-
-                        // Info
-                        if(notification.admin[id].type === 'info') {
-                            this.admin.push({
-                                msg: notification.admin[id].values.message,
-                                id: notification.admin[id].id
-                            });
-                        }
-                    }
-                }
-            }
-
-        });
-    }
 
     public deletePropertyNotification(property:any, notificationType:string):any
     {
@@ -207,5 +132,130 @@ export class StatusComponent extends Translation implements OnInit
         }
 
         return tempArr;
+    }
+
+
+    public headerList():Array<TerraSimpleTableHeaderCellInterface>
+    {
+        this._headerList = [];
+        for(let i:number = 0; i < this._headerInfo.length; i++)
+        {
+            if(this._headerInfo[i] === this.translation.translate('status.missing-properties')) {
+                let cell:TerraSimpleTableHeaderCellInterface = {
+                    caption: this._headerInfo[i],
+                    width:   '250',
+                };
+                this._headerList.push(cell);
+            } else {
+                let cell:TerraSimpleTableHeaderCellInterface = {
+                    caption: this._headerInfo[i],
+                    width:   '50',
+                };
+                this._headerList.push(cell);
+            }
+        }
+
+        return this._headerList;
+    }
+
+    public rowList():Array<TerraSimpleTableRowInterface<any>>
+    {
+        this._rowList = [];
+
+        this._statsDataService.getRestCallData('markets/panda-black/notifications').subscribe((notification:any) => {
+
+            this.pagingData = {
+                pagingUnit: 'pagingEntries',
+                totalsCount: notification.errorProducts.length,
+                page: 1,
+                itemsPerPage:   50,
+                lastPageNumber: 7,
+                firstOnPage:    1,
+                lastOnPage:     50,
+                isLastPage:     false
+            };
+
+            if(!isNullOrUndefined(notification.errorProducts)) {
+                for(let productId in notification.errorProducts)
+                {
+                    if(notification.errorProducts.hasOwnProperty(productId))
+                    {
+                        let cellList:Array<TerraSimpleTableCellInterface> = [];
+
+                        let articleId:TerraSimpleTableCellInterface = {
+                            caption: productId,
+                        };
+                        cellList.push(articleId);
+
+                        /* Missing Properties */
+                        if(isNullOrUndefined(notification.errorProductAttributes)) {
+                            let missingProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-success'
+                            };
+                            cellList.push(missingProperty);
+                        } else if(!isNullOrUndefined(notification.errorProductAttributes)) {
+                            let missingProperty:TerraSimpleTableCellInterface = {
+                                caption: (this.arrayValues(Object.assign([], notification.errorProductAttributes[productId])).join(',')).replace(',,', '')
+                            };
+                            cellList.push(missingProperty);
+                        }
+
+                        /* Stock */
+                        let stock:number = notification.errorProducts[productId].indexOf('No-Stock');
+
+                        if(stock === -1) {
+                            let stockProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-success'
+                            };
+                            cellList.push(stockProperty);
+                        } else {
+                            let stockProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-close'
+                            };
+                            cellList.push(stockProperty);
+                        }
+
+
+                        /* Asin */
+                        let asin:number = notification.errorProducts[productId].indexOf('No-Asin');
+
+                        if(asin === -1) {
+                            let asinProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-success'
+                            };
+                            cellList.push(asinProperty);
+                        } else {
+                            let asinProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-close'
+                            };
+                            cellList.push(asinProperty);
+                        }
+
+
+                        /* Related Properties */
+                        let relatedProperties:number = notification.errorProducts[productId].indexOf('emptyAttributeProduct');
+
+                        if(relatedProperties === -1) {
+                            let relatedProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-success'
+                            };
+                            cellList.push(relatedProperty);
+                        } else {
+                            let relatedProperty:TerraSimpleTableCellInterface = {
+                                icon: 'icon-close'
+                            };
+                            cellList.push(relatedProperty);
+                        }
+
+                        let row:TerraSimpleTableRowInterface<any> = {
+                            cellList: cellList
+                        };
+
+                        this._rowList.push(row);
+                    }
+                }
+            }
+        });
+        return this._rowList;
     }
 }

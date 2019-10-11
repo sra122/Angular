@@ -50,6 +50,12 @@ export class ItoolsComponent extends Translation implements OnInit
                 this._statsDataService.postPbCallData('/oauth2/authorizeSession').subscribe(
                     (response:any) =>
                     {
+                        let session:any = '';
+                        if(typeof response.Response !== 'undefined') {
+                            session =  response.Response.session_id;
+                        } else {
+                            session = response[0].session_id;
+                        }
                         this._statsDataService.postPbSession().subscribe(
                             (sessionResponse:any) =>
                             {
@@ -58,7 +64,7 @@ export class ItoolsComponent extends Translation implements OnInit
                                     process.env.PB_API_URL + '/oauth2/authorize?app_id=' +
                                     process.env.PB_APP_ID + '&redirect=' +
                                     plentyResponse.loginUrl
-                                    + '&session_id=' + response.Response.session_id,
+                                    + '&session_id=' + session,
                                     'Panda Black',
                                     'toolbar=no, location=#, directories=no, status=no, ' +
                                     'menubar=no, scrollbars=yes, resizable=no, copyhistory=no, ' +

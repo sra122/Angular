@@ -3,16 +3,16 @@
                   inputTooltipText="Authenticate to Panda Black"
                   inputTooltipPlacement="right"
                   inputIsTertiary="true"
-                  inputCaption="authenticate"
+                  [inputCaption]="'itool.authenticate-button' | translate:lang"
                   (outputClicked)="getLoginUrl()">
     </terra-button>
 </terra-base-toolbar>
 
 <terra-info-box *ngIf="this._expireTime">
-    <span body>Your token will be expired by {{this._expireTime}}.</span>
+    <span body>{{ 'itool.token-expiration' | translate:lang }}{{this._expireTime}}.</span>
 </terra-info-box>
 
 
 <terra-info-box *ngIf="!this._expireTime">
-    <span body>Please authenticate to Panda Black.</span>
+    <span body>{{ 'itool.authenticate-plugin' | translate:lang }}</span>
 </terra-info-box>
