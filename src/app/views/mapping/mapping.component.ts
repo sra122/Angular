@@ -160,14 +160,16 @@ export class MappingComponent extends Translation implements OnInit
             }*/
 
             for(let propertyValue of this.propertyValues) {
-                if((propertyValue.split('-')).reverse()[0] === mappingInfo[attributeName + '-attribute']) {
-                    propertyValue = propertyValue.replace('-' + mappingInfo[attributeName + '-attribute'], '');
+                if((propertyValue.split('§')).reverse()[0] === mappingInfo[attributeName + '-attribute']) {
+                    propertyValue = propertyValue.replace('§' + mappingInfo[attributeName + '-attribute'], '');
                     this._selectablePropertyValueList.push({
                         value: propertyValue,
                         caption: propertyValue
                     });
                 }
             }
+
+            console.log(this._selectablePropertyValueList);
 
             this._selectablePropertyValueList.push({
                 value: 'Create Automatically',

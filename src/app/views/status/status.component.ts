@@ -76,7 +76,8 @@ export class StatusComponent extends Translation implements OnInit
         this.translation.translate('status.missing-properties'),
         this.translation.translate('status.stock'),
         this.translation.translate('status.Asin'),
-        this.translation.translate('status.related-Properties')
+        this.translation.translate('status.missing-images'),
+        this.translation.translate('status.valid-category')
     ];
 
     constructor(private _statsDataService:StatsDataService, private viewContainerRef:ViewContainerRef)
@@ -103,12 +104,19 @@ export class StatusComponent extends Translation implements OnInit
     }
 
 
-    public deletePropertyNotification(property:any, notificationType:string):any
+    /*public deletePropertyNotification(property:any, notificationType:string):any
     {
         this._statsDataService.postRemoveNotification(property, notificationType).subscribe((response:any) => {
         });
         this.ngOnInit();
-    }
+    }*/
+
+
+    /*public postProduct():any
+    {
+        this._statsDataService.postProduct().subscribe((response:any) => {
+        });
+    }*/
 
 
     public validationProducts():any
@@ -162,11 +170,11 @@ export class StatusComponent extends Translation implements OnInit
     {
         this._rowList = [];
 
-        this._statsDataService.getRestCallData('markets/panda-black/notifications').subscribe((notification:any) => {
+        this._statsDataService.getRestCallData('markets/panda-black/product-errors').subscribe((errorProducts:any) => {
 
             this.pagingData = {
                 pagingUnit: 'pagingEntries',
-                totalsCount: notification.errorProducts.length,
+                totalsCount: errorProducts.length,
                 page: 1,
                 itemsPerPage:   50,
                 lastPageNumber: 7,
@@ -175,84 +183,96 @@ export class StatusComponent extends Translation implements OnInit
                 isLastPage:     false
             };
 
-            if(!isNullOrUndefined(notification.errorProducts)) {
-                for(let productId in notification.errorProducts)
+            if(!isNullOrUndefined(errorProducts)) {
+                for(let errorProduct of errorProducts)
                 {
-                    if(notification.errorProducts.hasOwnProperty(productId))
-                    {
-                        let cellList:Array<TerraSimpleTableCellInterface> = [];
+                    let cellList:Array<TerraSimpleTableCellInterface> = [];
 
-                        let articleId:TerraSimpleTableCellInterface = {
-                            caption: productId,
+                    let articleId:TerraSimpleTableCellInterface = {
+                        caption: errorProduct.product_id,
+                    };
+                    cellList.push(articleId);
+
+                    /* Missing Properties */
+                    if(isNullOrUndefined(errorProduct.missing_attributes)) {
+                        let missingProperty:TerraSimpleTableCellInterface = {
                         };
-                        cellList.push(articleId);
-
-                        /* Missing Properties */
-                        if(isNullOrUndefined(notification.errorProductAttributes)) {
-                            let missingProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-success'
-                            };
-                            cellList.push(missingProperty);
-                        } else if(!isNullOrUndefined(notification.errorProductAttributes)) {
-                            let missingProperty:TerraSimpleTableCellInterface = {
-                                caption: (this.arrayValues(Object.assign([], notification.errorProductAttributes[productId])).join(',')).replace(',,', '')
-                            };
-                            cellList.push(missingProperty);
-                        }
-
-                        /* Stock */
-                        let stock:number = notification.errorProducts[productId].indexOf('No-Stock');
-
-                        if(stock === -1) {
-                            let stockProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-success'
-                            };
-                            cellList.push(stockProperty);
-                        } else {
-                            let stockProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-close'
-                            };
-                            cellList.push(stockProperty);
-                        }
-
-
-                        /* Asin */
-                        let asin:number = notification.errorProducts[productId].indexOf('No-Asin');
-
-                        if(asin === -1) {
-                            let asinProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-success'
-                            };
-                            cellList.push(asinProperty);
-                        } else {
-                            let asinProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-close'
-                            };
-                            cellList.push(asinProperty);
-                        }
-
-
-                        /* Related Properties */
-                        let relatedProperties:number = notification.errorProducts[productId].indexOf('emptyAttributeProduct');
-
-                        if(relatedProperties === -1) {
-                            let relatedProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-success'
-                            };
-                            cellList.push(relatedProperty);
-                        } else {
-                            let relatedProperty:TerraSimpleTableCellInterface = {
-                                icon: 'icon-close'
-                            };
-                            cellList.push(relatedProperty);
-                        }
-
-                        let row:TerraSimpleTableRowInterface<any> = {
-                            cellList: cellList
+                        cellList.push(missingProperty);
+                    } else if(!isNullOrUndefined(errorProduct.missing_attributes)) {
+                        let missingProperty:TerraSimpleTableCellInterface = {
+                            caption: errorProduct.missing_attributes
                         };
-
-                        this._rowList.push(row);
+                        cellList.push(missingProperty);
                     }
+
+                    /* Stock */
+                    let stock:boolean = errorProduct.missing_stock;
+
+                    if(!stock) {
+                        let stockProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-success'
+                        };
+                        cellList.push(stockProperty);
+                    } else {
+                        let stockProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-close'
+                        };
+                        cellList.push(stockProperty);
+                    }
+
+
+                    /* Asin */
+                    let asin:boolean = errorProduct.missing_asin;
+
+                    if(!asin) {
+                        let asinProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-success'
+                        };
+                        cellList.push(asinProperty);
+                    } else {
+                        let asinProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-close'
+                        };
+                        cellList.push(asinProperty);
+                    }
+
+
+                    /* Missing Images */
+                    let missingImages:boolean = errorProduct.misssing_images;
+
+                    if(!missingImages) {
+                        let missingImagesProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-success'
+                        };
+                        cellList.push(missingImagesProperty);
+                    } else {
+                        let missingImagesProperty:TerraSimpleTableCellInterface = {
+                            icon: 'icon-close'
+                        };
+                        cellList.push(missingImagesProperty);
+                    }
+
+
+                    /* Category */
+                    let category:boolean = errorProduct.invalid_category;
+
+                    if(!category) {
+                        let categoryInfo:TerraSimpleTableCellInterface = {
+                            icon: 'icon-success'
+                        };
+                        cellList.push(categoryInfo);
+                    } else {
+                        let categoryInfo:TerraSimpleTableCellInterface = {
+                            icon: 'icon-close'
+                        };
+                        cellList.push(categoryInfo);
+                    }
+
+                    let row:TerraSimpleTableRowInterface<any> = {
+                        cellList: cellList
+                    };
+
+                    this._rowList.push(row);
                 }
             }
         });

@@ -11,6 +11,8 @@ import { isBoolean, isNullOrUndefined } from 'util';
 @Injectable()
 export class StatsDataService extends TerraBaseService
 {
+
+    public randId = new Date().getTime();
     private bearer:string;
 
     constructor(private _loadingSpinnerService:TerraLoadingSpinnerService,
@@ -30,7 +32,7 @@ export class StatsDataService extends TerraBaseService
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + restRoute;
+        let url:string = this.url + restRoute + '?' + this.randId;
 
         return this.mapRequest(
             this.http.get(url, {
@@ -45,7 +47,7 @@ export class StatsDataService extends TerraBaseService
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + 'markets/panda-black/create-correlation';
+        let url:string = this.url + 'markets/panda-black/create-correlation?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -62,7 +64,7 @@ export class StatsDataService extends TerraBaseService
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + 'markets/panda-black/edit-correlations';
+        let url:string = this.url + 'markets/panda-black/edit-correlations?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -81,7 +83,7 @@ export class StatsDataService extends TerraBaseService
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + 'markets/panda-black/create-attribute/' + id;
+        let url:string = this.url + 'markets/panda-black/create-attribute/' + id + '?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -99,9 +101,9 @@ export class StatsDataService extends TerraBaseService
 
         let url:string = '';
         if(id === null) {
-            url = this.url + restRoute;
+            url = this.url + restRoute + '?' + this.randId;
         } else {
-            url = this.url + restRoute + id;
+            url = this.url + restRoute + id + '?' + this.randId;
         }
         return this.mapRequest(
             this.http.delete(url,
@@ -116,7 +118,7 @@ export class StatsDataService extends TerraBaseService
         this.setAuthorization();
         this.setHeader();
 
-        let url:string = this.url + restRoute;
+        let url:string = this.url + restRoute + '?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -130,7 +132,7 @@ export class StatsDataService extends TerraBaseService
     public postPbCallData(restRoute:string):Observable<void>
     {
         this.headers.set('APP-ID', process.env.PB_APP_ID);
-        let url:string = process.env.PB_API_URL +  restRoute;
+        let url:string = process.env.PB_API_URL +  restRoute + '?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -143,7 +145,7 @@ export class StatsDataService extends TerraBaseService
 
     public postPbSession():Observable<any>
     {
-        let url:string = this.url + 'markets/panda-black/session';
+        let url:string = this.url + 'markets/panda-black/session?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url,
@@ -159,7 +161,7 @@ export class StatsDataService extends TerraBaseService
     {
         if(!isBoolean(pbCategoryTitle)) {
             this.headers.set('APP-ID', process.env.PB_APP_ID);
-            let url:string = this.url + 'markets/panda-black/create-category-as-property';
+            let url:string = this.url + 'markets/panda-black/create-category-as-property?' + this.randId;
 
             return this.mapRequest(
                 this.http.post(url, {
@@ -176,7 +178,7 @@ export class StatsDataService extends TerraBaseService
     {
         this.headers.set('APP-ID', process.env.PB_APP_ID);
 
-        let url:string = this.url + 'markets/panda-black/mapping';
+        let url:string = this.url + 'markets/panda-black/mapping?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url, {
@@ -193,12 +195,27 @@ export class StatsDataService extends TerraBaseService
     {
         this.headers.set('APP-ID', process.env.PB_APP_ID);
 
-        let url:string = this.url + 'markets/panda-black/remove-notification';
+        let url:string = this.url + 'markets/panda-black/remove-notification?' + this.randId;
 
         return this.mapRequest(
             this.http.post(url, {
                 notificationType: notificationType,
                 propertyName: propertyName
+            }, {
+                headers: this.headers
+            })
+        );
+    }
+
+
+    public postProduct():Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+
+        let url:string = this.url + 'markets/panda-black/products-data?' + this.randId;
+
+        return this.mapRequest(
+            this.http.post(url, {
             }, {
                 headers: this.headers
             })
