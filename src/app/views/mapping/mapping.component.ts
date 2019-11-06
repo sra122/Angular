@@ -159,7 +159,9 @@ export class MappingComponent extends Translation implements OnInit
                 }
             }*/
 
-            for(let propertyValue of this.propertyValues) {
+            console.log(typeof Object.assign([], this.propertyValues));
+
+            for(let propertyValue of Object.assign([], this.propertyValues)) {
                 if((propertyValue.split('§')).reverse()[0] === mappingInfo[attributeName + '-attribute']) {
                     propertyValue = propertyValue.replace('§' + mappingInfo[attributeName + '-attribute'], '');
                     this._selectablePropertyValueList.push({
@@ -226,7 +228,7 @@ export class MappingComponent extends Translation implements OnInit
                         'markets/panda-black/vendor-attribute/' + this._pickedCategoryValue).subscribe((attributes:any) => {
                         for(let k in attributes) {
                             if(attributes.hasOwnProperty(k)) {
-                                if(attributes[k].required && !isNullOrUndefined(attributes[k].values)) {
+                                if(!isNullOrUndefined(attributes[k].values)) {
                                     if(this._mappingPropertyData.hasOwnProperty(attributes[k].name)) {
                                         this.vendorAttributes.push({
                                             name: attributes[k].name,

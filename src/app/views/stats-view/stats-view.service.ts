@@ -222,6 +222,22 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+    public postNotificationRead(id:number):Observable<void>
+    {
+        console.log('client');
+        console.log(id);
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+
+        let url:string = this.url + 'markets/panda-black/mark-notification/' + id + '?' + this.randId;
+
+        return this.mapRequest(
+            this.http.post(url, {
+            }, {
+                headers: this.headers
+            })
+        );
+    }
+
     private setHeader():void
     {
         if(!isNullOrUndefined(this.bearer))

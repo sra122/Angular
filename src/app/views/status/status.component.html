@@ -1,43 +1,58 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12">
-            <h1>Error Products</h1>
+            <br>
             <terra-button inputIcon='icon-refresh'
                           [inputTooltipText]="'stats-view.refreshToolTip' | translate:lang"
                           [inputCaption]="'stats-view.refresh' | translate:lang"
                           inputTooltipPlacement="left"
                           (outputClicked)="ngOnInit()">
             </terra-button>
-            <terra-button [inputCaption]="'stats-view.validation' | translate:lang"
-                          (outputClicked)="validationProducts()">
-            </terra-button>
+            <!--<terra-button [inputCaption]="'stats-view.validation' | translate:lang"
+                          (outputClicked)="">
+            </terra-button>-->
         </div>
     </div>
     <br>
+    <h3>Error Products</h3>
     <terra-pager [inputPagingData]="pagingData"></terra-pager>
     <terra-simple-table #table
                         [inputIsStriped]="true"
                         [inputHasCheckboxes]="true"
                         [inputUseHighlighting]="true"
                         [inputEnableHotkeys]="true"
-                        [inputHeaderList]="_headerList"
-                        [inputRowList]="_rowList">
+                        [inputHeaderList]="_errorHeaderList"
+                        [inputRowList]="_errorRowList">
     </terra-simple-table>
+
+    <br><br>
+
+    <h3>Valid Products</h3>
+    <terra-pager [inputPagingData]="pagingData"></terra-pager>
+    <terra-simple-table #table
+                        [inputIsStriped]="true"
+                        [inputHasCheckboxes]="true"
+                        [inputUseHighlighting]="true"
+                        [inputEnableHotkeys]="true"
+                        [inputHeaderList]="_validHeaderList"
+                        [inputRowList]="_validRowList">
+    </terra-simple-table>
+
     <br><br><br>
     <terra-portlet [inputPortletHeader]="'status.admin-notification' | translate:lang">
         <div *ngFor="let adminNotification of this.admin">
             <div class="row">
                 <div class="col-lg-7">
-                    <div>{{adminNotification.msg}}</div>
+                    <h5 style="margin-left: 2%">{{adminNotification.message}}</h5>
                 </div>
                 <div class="col-lg-1"></div>
                 <div class="col-lg-2">
-                    <!--<terra-button inputIcon="icon-delete"
+                    <terra-button inputIcon="icon-delete"
                                   inputTooltipPlacement="right"
                                   inputIsTertiary="true"
                                   inputCaption=""
-                                  (outputClicked)="deletePropertyNotification(adminNotification.id, 'admin')">
-                    </terra-button>-->
+                                  (outputClicked)="markAsRead(adminNotification.notification_identifier)">
+                    </terra-button>
                 </div>
             </div>
         </div>
