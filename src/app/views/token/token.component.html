@@ -1,0 +1,14 @@
+<terra-portlet inputPortletHeader="input uses ngModel">
+    <terra-text-input inputName="username" [(ngModel)]="_username"> </terra-text-input>
+</terra-portlet>
+<terra-portlet inputPortletHeader="input is password">
+    <terra-text-input inputName="password" [inputIsPassword]="true" [(ngModel)]="_password"> </terra-text-input>
+</terra-portlet>
+
+<terra-button inputIcon="icon-plugin_productive"
+              [inputTooltipText] = "'token.generateToken' | translate:lang"
+              inputTooltipPlacement="right"
+              inputIsTertiary="true"
+              [inputCaption]="'token.generateToken' | translate:lang"
+              (outputClicked)="sendToken()">
+</terra-button>

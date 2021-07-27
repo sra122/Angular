@@ -238,6 +238,23 @@ export class StatsDataService extends TerraBaseService
         );
     }
 
+
+    public postForToken(username:string, password:string):Observable<void>
+    {
+        this.headers.set('APP-ID', process.env.PB_APP_ID);
+
+        let url:string = this.url + 'markets/panda-black/token' + '?' + this.randId;
+
+        return this.mapRequest(
+            this.http.post(url, {
+                username: username,
+                password: password
+            }, {
+                headers: this.headers
+            })
+        );
+    }
+
     private setHeader():void
     {
         if(!isNullOrUndefined(this.bearer))

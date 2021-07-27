@@ -14,6 +14,7 @@ import { StatsViewComponent } from './views/stats-view/stats-view.component';
 import { StatsDataService } from './views/stats-view/stats-view.service';
 import { ItoolsComponent } from './views/itools/itools.component';
 import { StatusComponent } from './views/status/status.component';
+import { TokenComponent } from './views/token/token.component';
 import { VendorCategoriesService } from './core/rest/markets/panda-black/vendorcategories/vendorcategories.service';
 import { LoadingConfig } from './core/config/loading.config';
 import { MappingComponent } from './views/mapping/mapping.component';
@@ -33,7 +34,8 @@ import { MappingComponent } from './views/mapping/mapping.component';
         StatsViewComponent,
         ItoolsComponent,
         StatusComponent,
-        MappingComponent
+        MappingComponent,
+        TokenComponent
     ],
     providers:    [
         LoadingConfig,
@@ -62,4 +64,3 @@ function initLocalization(l10nLoader:L10nLoader):Function
 {
     return ():Promise<void> => l10nLoader.load();
 }
-

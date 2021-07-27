@@ -47,5 +47,8 @@
     "missing-images": "Fehlende Bilder",
     "item_id": "Item Id",
     "title": "Titel"
+  },
+  "token": {
+    "generateToken": "Generate Token"
   }
 }
